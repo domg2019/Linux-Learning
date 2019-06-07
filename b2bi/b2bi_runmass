@@ -1,0 +1,27 @@
+function runmass()
+{
+    . $FRAME_ROOT/framework/LHScriptFunctions;
+    if [[ $1 != '' ]]; then
+        if [[ -e "/tmp/remafi_$1.lck" ]];then
+            echo "Remafi lock for $1(/tmp/remafi_$1.lck) already exist, probably someone is running remafi."
+        else
+            err;
+            echo -n "MassFilterFileNumber of $1:";
+            ls -l | grep "MassFilter" | grep $1 | grep -c ".att$";
+            ls -l | grep "MassFilter" | grep $1 | head;
+            INTEGRATIONTYPE=$(SQLselect INTEGRATIONTYPE XIB_PROCESSIDPROPERTIES PROCESSIDCODE $1 | sed 's#^.* ##');
+            echo "Integration type : ${INTEGRATIONTYPE}";
+            if [[ "${INTEGRATIONTYPE}" == "Parallel" ]];then
+                echo -e "\n>>>deletemassfilterflag $1";
+                echo | deletemassfilterflag $1;
+                echo -e "\n>>>remafi $1 2";
+                remafi $1 2;
+            elif [[ "${INTEGRATIONTYPE}" == "Serial" ]]; then
+                echo -e "\n>>>remafi $1 7";
+                remafi $1 7;
+                echo -e "\n>>>deletemassfilterflag $1";
+                echo | deletemassfilterflag $1;
+            fi
+        fi
+    fi
+}
