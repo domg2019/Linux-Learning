@@ -1,0 +1,23 @@
+#!/bin/bash
+
+while (true);
+do cd /progs/amtcftp/error;
+echo "Errors in error folder!!!"
+ls -lt;
+#if [[ $(ls /progs/amtcftp/error | wc -l | bc) != 0 ]];
+#then for ((i=1;i<=6;i++));
+#do echo -en "\a";
+#usleep 500000; done; fi 2>/dev/null;
+sleep 10;
+cd /progs/amtcftp/comsysPX/error;
+echo "Resend files; /progs/amtcftp/comsysPX/resend/, if fail again, hk"
+ls -lt;
+#if [[ $(ls /progs/amtcftp/comsysPX/error | wc -l | bc) != 0 ]];
+#then for ((i=1;i<=6;i++));
+#do echo -en "\a";
+#usleep 500000; done; fi 2>/dev/null;
+#sleep 10;
+/opt/amtcftp/tools/support/bin/list2 -runbycron | sed -n '/Customer directories (DOWNLOAD)/,/Customer directories (UPLOAD)/p' ;
+cd $sup/luis;
+sleep 300;
+done;

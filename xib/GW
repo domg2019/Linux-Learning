@@ -1,0 +1,87 @@
+##################################################################################################################
+# Little Test Script
+# Function: 'clean_up2 -v' files in the err folder. Then do ll to list files left. '-b' means to 'beep' if files left
+# 05.30.2019   ---- First version
+##################################################################################################################
+
+#!/bin/bash
+
+function Beep()
+{
+if [[ ${needBeep} == true ]];then
+if [[ $(ls /ext/schenker/data/error | wc -l | bc) != 0 ]];then
+for ((i=1;i<=6;i++));
+do
+echo -en "\a";
+usleep 500000;
+done;
+fi 2>/dev/null;
+fi
+}
+
+
+
+function List()
+{
+if [[ ${ListValue} == true ]];then
+	echo "Old file checking:"; 
+	/ext/schenker/toolslocal/list2 -fileagemin=30;
+	fi
+}
+
+function CheckFTP()
+{
+	if [[ ${FtpValue} == true ]];then
+		ssh -o StrictHostKeyChecking=no amtrix@xibftprd1.dc.signintra.com "/app/xib/ext/support/luis/ftp";
+	fi	
+}
+
+
+function init()
+{
+LD_LIBRARY_PATH="";
+needBeep=false;
+
+while getopts "bfl" opt
+		do
+		case  "$opt"  in
+		b)
+			needBeep=true;
+		;;
+		f)
+			FtpValue=true;
+		;;
+		l)
+			ListValue=true;
+		;;
+		esac
+	done
+}
+
+
+
+
+function main()
+{
+clear;
+init $@;
+echo "==============$(date)=============="
+while (true);do
+cd /ext/schenker/data/error;
+echo -en "Errors total:"
+echo `ls | wc -l | bc`
+ls -lt;
+clean_up2 -v;
+echo -en "Errors After clean_up2:"
+echo `ls | wc -l | bc` 
+ls -lt;
+Beep $@;
+List $@;
+CheckFTP;
+cd /ext/schenker/support/luis;
+sleep 200;
+done;
+}
+
+
+main $@;

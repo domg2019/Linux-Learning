@@ -1,0 +1,202 @@
+#!/bin/bash
+
+function checkAndBeep()
+{
+    if [[ ${needBeep} == true ]];then
+        /usr/bin/ssh -o StrictHostKeyChecking=no ${remoteHostName} 'if [[ $(ls /ext/schenker/data/error | wc -l | bc) != 0 ]];then for i in $(/opt/sfw/bin/seq 1 5);  do echo -en "\a"; /usr/local/bin/usleep 600000 ; done; fi' 2>/dev/null;
+    fi
+}
+
+function cleanUpRemoteApp()
+{
+    if [[ ${REPLY} != '' ]];then
+        /usr/bin/ssh -o StrictHostKeyChecking=no ${remoteHostName} "PATH=/ext/schenker/toolslocal:/opt/sfw/bin:\$PATH;\
+        echo > /tmp/errorlist.tmp;\
+        cd /ext/schenker/data/error;\
+        ls -l | /usr/bin/awk '{print \$6\" \"\$7\" \"\$8\",\"\$9}' > /tmp/errorlist.tmp;\
+        if [[ \$(ls | /usr/bin/wc -l | /usr/bin/bc) != 0 ]]; then\
+            echo -e \"\033[1;32;5mRunning clean_up2, please mark relevant error message as manually corrected on Message Log according to below info:\033[39;49;0m\";\
+            for file in \$(/ext/schenker/toolslocal/clean_up2 -v | /usr/bin/cut -d\' -f1 | /usr/sfw/bin/ggrep -oe \"[A-Z_0-9]\{10\}\.logger_.*\.arc\.arc\"); do /usr/sfw/bin/ggrep \$file /tmp/errorlist.tmp; done;\
+        fi" 2>/dev/null;
+    fi
+}
+
+function cleanUpRemoteGw()
+{
+    if [[ ${REPLY} != '' ]];then
+        /usr/bin/ssh -o StrictHostKeyChecking=no ${remoteHostName} 'PATH=/ext/schenker/toolslocal:/opt/sfw/bin:$PATH; cd /ext/schenker/data/error; if [[ $(ls | wc -l | bc) != 0 ]]; then /ext/schenker/toolslocal/clean_up2 -v; fi' 2>/dev/null;
+    fi
+}
+
+function checkApp()
+{
+    for app in $(grep APP ${configFile} | grep -v "^#")
+    do
+        server=$(echo ${app} | cut -d\| -f1);
+        remoteHostName=$(echo ${app} | cut -d\| -f2);
+        echo "${server}";
+        /usr/bin/ssh -o StrictHostKeyChecking=no ${remoteHostName} '\
+        echo -en "Massfilter:"; ls /ext/schenker/data/error | grep 'MassFilter' | grep -c '.att$'; ls /ext/schenker/data/error | grep 'MassFilter' | grep '.att$' | cut -d\. -f2 | sort | uniq -c;\
+        echo -en "Error:"; ls /ext/schenker/data/error | grep -v 'MassFilter' | grep -c '.att$'; ls /ext/schenker/data/error | grep -v 'MassFilter' | grep '.att$' | cut -d\. -f1 | sort | uniq -c;\
+        ' 2>/dev/null;
+        checkAndBeep;
+        cleanUpRemoteApp;
+        printLine;
+    done
+}
+
+function checkGw()
+{
+    for gw in $(grep GW ${configFile} | grep -v "^#")
+    do
+        server=$(echo ${gw} | cut -d\| -f1);
+        remoteHostName=$(echo ${gw} | cut -d\| -f2);
+        echo "${server}";
+        case ${willCheckOldFile} in
+            true)
+                    /usr/bin/ssh -o StrictHostKeyChecking=no ${remoteHostName} '\
+                    PATH=/ext/schenker/toolslocal:/opt/sfw/bin:$PATH;\
+                    echo -en "Error:"; ls /ext/schenker/data/error | wc -l; ls /ext/schenker/data/error | cut -d\. -f1 | sort | uniq -c;\
+                    echo "Old file checking:"; /ext/schenker/toolslocal/list2 -fileagemin=30;\
+                    ' 2>/dev/null;
+                    ;;
+            false)
+                    /usr/bin/ssh -o StrictHostKeyChecking=no ${remoteHostName} '\
+                    PATH=/ext/schenker/toolslocal:/opt/sfw/bin:$PATH;\
+                    echo -en "Error:"; ls /ext/schenker/data/error | wc -l; ls /ext/schenker/data/error | cut -d\. -f1 | sort | uniq -c;\
+                    ' 2>/dev/null;
+                    ;;
+        esac
+        #cleanUpRemoteGw;
+        checkAndBeep;
+        cleanUpRemoteGw;
+        printLine;
+    done
+}
+
+function checkFtp()
+{
+    echo "FTP part not complete yet...";
+    #TODO
+}
+
+function autoConfig()
+{
+    echo -e "APP1:1|GW1:5\nAPP2:2|GW2:6\nAPP3:3|GW3:7\nAPP4:4|GW4:8";
+    echo -n "Please input sequence number(s) of the server(s) you want to monitor:";
+    read -t 30 serverSequenceNumbers;
+    if [[ -z ${serverSequenceNumbers} ]];then
+        configFile="monitor.cfg";
+    else
+        mkdir tmpConfig 2>/dev/null;
+        gfind tmpConfig/ -type f -mtime +3 -exec rm {} \;
+        configFile="tmpConfig/$(date "+%Y%m%d_%H%M%S")";
+        for lineNum in $(seq 1 $(cat monitor.cfg | wc -l))
+        do
+            echo ${serverSequenceNumbers} | grep ${lineNum} > /dev/null;
+            if [[ $? == 0 ]];then
+                sed -n ${lineNum}p monitor.cfg >> ${configFile};
+            fi
+        done
+    fi
+}
+
+function init()
+{
+    LD_LIBRARY_PATH="";
+    localHostName=$(hostname);
+    willCheckOldFile=false;
+    isLoopCheck=false;
+    needBeep=false;
+
+    while getopts "f:t:obh" arg
+    do
+        case ${arg} in
+            f)
+                configFile=${OPTARG};
+                ;;
+            t)
+                isLoopCheck=true;
+                gap=${OPTARG};
+                ;;
+            o)
+                willCheckOldFile=true;
+                ;;
+            b)
+                needBeep=true;
+                ;;
+            h)
+                printHelp;
+                exit;
+                ;;
+            *)
+                printHelp;
+                exit;
+                ;;
+        esac
+    done
+    if [[ -z "${configFile}" ]]; then
+        autoConfig;
+    fi
+}
+
+function checkLocation()
+{
+    if [[ "." != $(dirname $0) ]];then
+        echo "Please execute in the same folder where the script is."
+        exit -1;
+    fi
+}
+
+function printNow()
+{
+    echo "=======================$(date "+%Y-%m-%d %H:%M:%S")=========================";
+}
+
+function printLine()
+{
+    echo "===================================================================";
+}
+
+function printHelp()
+{
+    printLine;
+    echo "This script is used to monitor all APP and GW server in one location.";
+    printLine;
+    echo "./monitor.sh -f custom.cfg | use a customised config file instead of monitor.cfg as default.";
+    echo "in config file, line starts with '#' will be ignored.";
+    echo "./monitor.sh -t 300 | create a loop check, the gap will be 300 seconds.";
+    echo "./monitor.sh -o | check old file when checking GW.";
+    echo "./monitor.sh -b | script will beep if error folder is not empty.";
+    echo "./monitor.sh -h | print help info.";
+    printLine;
+}
+
+function main()
+{
+    checkLocation;
+    init $@;
+    case ${isLoopCheck} in
+        false)
+                printNow;
+                checkApp;
+                checkGw;
+                #checkFtp;
+                ;;
+        true)
+                while true
+                do
+                    clear;
+                    printNow;
+                    checkApp;
+                    checkGw;
+                    #checkFtp;
+                    REPLY='';
+                    echo -e "Next check will be executed ${gap} seconds later.\nPress Enter to check again immediately.\nInput anything to check and run clean_up2 immediately.";
+                    read -t ${gap};
+                done
+                ;;
+    esac
+}
+
+main $@;
