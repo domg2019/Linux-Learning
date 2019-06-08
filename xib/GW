@@ -1,7 +1,9 @@
 ##################################################################################################################
 # Little Test Script
 # Function: 'clean_up2 -v' files in the err folder. Then do ll to list files left. '-b' means to 'beep' if files left
-# 05.30.2019   ---- First version
+#
+# 06.07.2019	---- add list2 fileagemin=30, ftp check
+# 05.30.2019    ---- First version
 ##################################################################################################################
 
 #!/bin/bash
