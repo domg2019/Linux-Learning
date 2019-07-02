@@ -153,5 +153,5 @@ function runmass()
 }
 
 echo "Available functions : ref; hk; monitor;";
-
+echo "Usage for monitor: monitor [time], such as monitor 300";
 
