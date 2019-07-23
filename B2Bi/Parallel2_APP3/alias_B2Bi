@@ -4,9 +4,10 @@
 # 
 #HISTORY:
 #	TO do              - Add function cer(done),getbdid,cleanup,cdArchive_A
+#	07.23.2019 - luis  - Add beep function
 #	06.18.2019 - Luis  - Add usage how to use the monitor
 #	06.14.2019 - Lars  - Changed the .bashrc back normal and now runmass works well
-#   05.31.2019 - Allen - Added from xib alias, firstly 5 functions added 
+#       05.31.2019 - Allen - Added from xib alias, firstly 5 functions added 
 #						            ref,hk,checkError,monitor,runmass
 ##################################################################################
 
@@ -19,6 +20,7 @@ alias rm='rm -i';
 alias frm='/usr/bin/rm';
 alias new='ls -lt | grep -v "^total" | head';
 alias old='ls -ltr | grep -v "^total" | head';
+alias luis='cd /app/sword/schenker/support/luis';
 alias tll='cd /app/sword/schenker/toolslocal';
 alias tlls='cd /app/sword/schenker/toolslocal/support/';
 
@@ -39,9 +41,9 @@ function cer()
 function Beep()
 
 {
-	if [[ $CHECKCONDITION == true ]];
-#		then  if [[ $(ls /app/sword/schenker/data/error | wc -l | bc) != 0 ]];
-		then  if [[ $(ls /app/sword/schenker/support/luis/prod-script | wc -l | bc) != 0 ]];
+	if [[ $beep == b ]];
+		then  if [[ $(ls /app/sword/schenker/data/error | wc -l | bc) != 0 ]];
+#		then  if [[ $(ls /app/sword/schenker/support/luis/prod-script | wc -l | bc) != 0 ]];
 					then for ((i=1;i<=6;i++));
 							do echo -en "\a";
 							usleep 500000; 
@@ -135,9 +137,10 @@ function checkError()
 
 function monitor()
 {
-	init $@;
-	#Beep $@;
+#	init $@;
+#	Beep $@;
     gap=$(echo $1 | bc);
+    beep=$(echo $2);
     command='';
     if [[ "${gap}" == "" ]]; then
         checkError;
@@ -153,6 +156,7 @@ function monitor()
                 clear;
                 date;
                 checkError;
+		Beep;
                 echo -e "Next check will be executed ${gap} seconds later.\nPress Enter to check again immediately.\nInput any command to run immediately.";
                 read -t "${gap}" command;
             fi
@@ -189,21 +193,19 @@ function runmass()
     fi
 }
 
-function init()
-{
-		CHECKCONDITION=false;
-		
-		while getopts "b" valid
-			do
-				case ${valid} in
-					b)
-						CHECKCONDITION=true;
-						Beep $@;
-						;;
-				esac
-		done;	
-			
-}
+#function init()
+#{
+#		CHECKCONDITION=false;		
+#		while getopts "b" valid
+#			do
+#				case ${valid} in
+#					b)
+#						CHECKCONDITION=true;
+#						Beep $@;
+#						;;
+#				esac
+#		done;				
+#}
 
 
 echo "Available functions : ref; hk; monitor; runmass; cer";
