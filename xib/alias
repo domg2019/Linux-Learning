@@ -407,6 +407,38 @@ function checkRemote()
     #TODO
 }
 
+function tmcheck()
+{
+	NOTOOMUCH=`ls /ext/comsys2001/comexp_too_much 2>/dev/null | wc -l`;
+	NOIMPWORK=`ls /ext/comsys2002/impwork 2>/dev/null | wc -l`;
+
+
+	echo -e "==========Check the UDS agreement too_much issue==============";
+	echo -e "/ext/comsys2001/comexp_too_much:";
+	ls /ext/comsys2001/comexp_too_much 2>/dev/null | awk -F. '{print $1 "." $2}' | uniq -c | sort -r;
+	echo -en "Number of files in this folder is:"; 
+	ls /ext/comsys2001/comexp_too_much 2>/dev/null | wc -l;
+	echo -en "/ext/comsys2002/impwork";
+	ls /ext/comsys2002/impwork 2>/dev/null | wc -l ;
+	echo -en "/ext/comsys2002/agr/UDS_COROUT_NEWTOPS_outbound/imp"; 
+	ls /ext/comsys2002/agr/UDS_COROUT_NEWTOPS_outbound/imp 2>/dev/null | wc -l;
+	date;
+
+}
+
+function Mtmcheck()
+{
+	str1=`echo -n $1 | wc -c`;
+	str2=`find /ext/comsys2001/comexp_too_much -name "$1*" | wc -l`;
+	if [[ $str -lt 23 ]] || [[ $str2 -eq 0 ]];
+	then 	echo "Please input correct variable!"
+	else	for i in `find /ext/comsys2001/comexp_too_much -name "$1*" |tail -10000`;
+			do 	/opt/sfw/bin/mv -v $i /ext/comsys2001/comexp_ok/ >> /ext/schenker/support/luis/$1;
+				usleep 100000;
+			done; 
+	fi
+}
+
 function hint()
 {
     if [[ "" == $1 ]];then
