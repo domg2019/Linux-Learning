@@ -75,7 +75,7 @@ function hk()
 {
     if [[ $1 != '' && $(echo $1 | grep -Eo [A-Z_0-9]{10}) == $1 ]]; then
         err;
-        /app/sword/schenker/toolslocal/support/clean_up2;
+        /app/sword/schenker/toolslocal/support/clean_up2 -v;
         echo;
         processID=$1;
         hkTmpFile="/tmp/hk_${processID}_$(date "+%Y%m%d%H%M%S").tmp";
