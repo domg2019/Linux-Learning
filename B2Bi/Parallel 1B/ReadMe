@@ -179,11 +179,13 @@ function runmass()
                 echo | /app/sword/schenker/toolslocal/support/deletemassfilterflag $1;
                 echo -e "\n>>>remafi $1 2";
                 /app/sword/schenker/toolslocal/support/remafi $1 2;
+                alias l='ls -lt';
             elif [[ "${INTEGRATIONTYPE}" == "Serial" ]]; then
                 echo -e "\n>>>remafi $1 7";
                 /app/sword/schenker/toolslocal/support/remafi $1 7;
                 echo -e "\n>>>deletemassfilterflag $1";
                 echo | /app/sword/schenker/toolslocal/support/deletemassfilterflag $1;
+                alias l='ls -lt';
             fi
         fi
     fi
