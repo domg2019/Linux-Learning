@@ -1,12 +1,12 @@
 ###############################################################
 #
-#
-#       7/27/2019 -Luis  Added this script to record the MassFilter files' Value
+#       11/1/2019 - Luis  Bug fix
+#       7/27/2019 - Luis  Added this script to record the MassFilter files' Value
 ###############################################################
 
 #!/bin/bash
 
-. $FRAME_ROOT/tools/ScriptFunctions
+. $FRAME_ROOT/framework/LHScriptFunctions
 
 NOTOUCH=/app/sword/schenker/support/luis/NOTOUCH
 Error=/app/sword/schenker/data/error
@@ -16,23 +16,24 @@ Today=$(date '+%Y_%m%d');
 
 while (true);
 do
-if [ ! -d  "$NOTOUCH/$Year/$Today" ]
-then mkdir -p $NOTOUCH/$Year/$Today;
-fi
-
-
-if [ "$(ls $Error/MassFilter* | wc -l | bc )" != 0 ]
-then    Count=$(ls $Error/MassFilter* | awk -F. '{print $2}' | uniq | wc -l|bc);
-                for i in $(seq $Count);
-                        do  PID=$(ls $Error/MassFilter* | awk -F. '{print $2}' | uniq | sort | sed -n "$i"p);
-                                touch $NOTOUCH/$Year/$Today/$PID.txt;
-                            MFVALUES=$(SQLselect PROCESSID,NOFILES,NOBYTES,FILTER_REACHED MON_MASSFILTER PROCESSID $PID | sed -e 's#, #,#g' -e 's# ,#,#g');
-                                if [ ! -n "$(fgrep $MFVALUES $NOTOUCH/$Year/$Today/$PID.txt)"]
-                                        then echo $MFVALUES >> $NOTOUCH/$Year/$Today/$PID.txt;
-                                fi
-                done;
-fi      2>/dev/null;
-
+	if [ ! -d  "$NOTOUCH/$Year/$Today" ]
+		then mkdir -p $NOTOUCH/$Year/$Today;
+		else	if [ "$(ls $Error/MassFilter* | wc -l | bc )" != 0 ]
+					then    Count=$(ls $Error/MassFilter* | awk -F. '{print $2}' | uniq | wc -l|bc);
+						if [[ $Count -le 1800 ]];then
+							for i in $(seq $Count);
+								do  PID=$(ls $Error/MassFilter* | awk -F. '{print $2}' | uniq | sort | sed -n "$i"p);
+									touch $NOTOUCH/$Year/$Today/$PID.txt;
+									MFVALUES=$(SQLselect PROCESSID,NOFILES,NOBYTES,FILTER_REACHED MON_MASSFILTER PROCESSID $PID | sed -e 's#, #,#g' -e 's# ,#,#g');
+									if [ ! -n "$(fgrep "$MFVALUES" $NOTOUCH/$Year/$Today/$PID.txt)"]
+										then echo $MFVALUES >> $NOTOUCH/$Year/$Today/$PID.txt;
+									fi
+							done;
+						fi
+				fi 
+	fi      2>/dev/null;
+echo "Checking Completed!"
+echo -e "Next check will be executed 100 seconds later.\nPress Enter to check again immediately or <CTRL>+C to stop the script!"
+read dummy
 sleep 100;
-
 done;
