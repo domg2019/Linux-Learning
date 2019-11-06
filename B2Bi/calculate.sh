@@ -24,5 +24,7 @@ do if [ `grep -o Parallel $FILE|uniq|wc -l|bc` -eq 1 ]
                         echo -e -n "Number of files: $c_check"
                         echo -e "+++++++++++++++++++++++++++"
                 done
-        fi
+	elif [ `grep -o SerialLarge $FILE|uniq|wc -l|bc` -gt 0 ]
+		then echo -e "There are Serical Massfilters !!!!!!!" 
+    fi
 done
