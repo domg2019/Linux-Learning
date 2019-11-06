@@ -6,7 +6,7 @@
 
 #!/bin/bash
 . $FRAME_ROOT/framework/LHScriptFunctions
-. /home/b2bi/alias_B2Bi
+. /home/b2bi/alias_B2Bi 1>/dev/null
 
 MASSAUTO=/app/sword/schenker/support/luis/MASSAUTO
 Error=/app/sword/schenker/data/error
