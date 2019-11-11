@@ -4,7 +4,7 @@
 #
 #HISTORY:
 #       TO do              
-#	11.11.2019  -Luis  -Add function beep, cer, getbdid
+#	11.11.2019  -Luis  -Add function beep, cer, getbdid,corelog
 #       06.18.2019 - Luis  - Add usage how to use the monitor
 #       06.14.2019 - Lars  - Changed the .bashrc back normal and now runmass works well
 #   05.31.2019 - Allen - Added from xib alias, firstly 5 functions added
@@ -199,6 +199,11 @@ function runmass()
             fi
         fi
     fi
+}
+
+function corelog()
+{
+	grep $1 /app/sword/axway/Interchange/logs/*log
 }
 
 echo "Available functions : ref; hk; monitor; runmass; cer";
