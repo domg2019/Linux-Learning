@@ -3,7 +3,8 @@
 #
 #
 #HISTORY:
-#       TO do              - Add function cer(done),getbdid,cleanup,cdArchive_A
+#       TO do              
+#	11.11.2019  -Luis  -Add function beep, cer, getbdid
 #       06.18.2019 - Luis  - Add usage how to use the monitor
 #       06.14.2019 - Lars  - Changed the .bashrc back normal and now runmass works well
 #   05.31.2019 - Allen - Added from xib alias, firstly 5 functions added
@@ -51,7 +52,10 @@ function Beep()
         fi
 }
 
-#TODO getbdid
+function getbdid()
+{
+	grep -A 1 BDIDRefValues $1 | sed -n 2p | awk -F\" '{print $2}'
+}
 
 function ref()
 {
