@@ -98,8 +98,7 @@ function monitor()
 				SystemCheck
 				CkTime=$(( $1*60 ))
 				echo -e "Next check will be executed $INPUT mins later.\nPress Enter to check again immediately or <CTRL>+C to stop it."	
-				read dummy
-				sleep $CkTime
+				read -t "$CkTime"
 				done
 		fi
 }			 
