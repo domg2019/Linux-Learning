@@ -4,7 +4,8 @@
 #This script aims to run the Massfilter files (less than 2000) automatilly to improve the work efficiance 
 #
 #
-#	12/30/2019	-luis	Fix the bug that runmass won't work if there is no alias_B2Bi
+#	12/30/2019	-luis	Fix the bug that runmass won't work if there is no alias_B2Bi. Add the judgement 
+#				that only Luis can use this script.
 #	12/16/2019      -Luis  Impleted the function. add the scripts to check shift end time point
 #	11/1/2019 		-Luis  Updated. Checking Massfilter files count
 #   8/31/2019 		-Luis  Added this script to record the MassFilter files' Value
