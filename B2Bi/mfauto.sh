@@ -11,17 +11,19 @@
 #   8/31/2019 		-Luis  Added this script to record the MassFilter files' Value
 ##########################################################################################################
 
+. $FRAME_ROOT/framework/LHScriptFunctions
+#. /home/b2bi/alias_B2Bi 1>/dev/null
+
+MASSAUTO=/app/sword/schenker/support/luis/MASSAUTO
+Error=/app/sword/schenker/data/error
+
+Year=$(date '+%Y');
+Today=$(date '+%Y_%m%d');
 
 #only specific user can use this script
 user=`pinky|sed -n '/luisliu1/p'|awk '{print $1}'|uniq`
 idletime=`pinky|sed -n '/luisliu1/p'|cut -c 40-44| cut -d: -f1|sort|sed -n 1p|bc`
 if [[ "$user" != "luisliu1"  || "$idletime" -ge 2 ]];then echo -e "permission forbidden.";exit;fi
-
-#. $FRAME_ROOT/framework/LHScriptFunctions
-#. /home/b2bi/alias_B2Bi 1>/dev/null
-
-MASSAUTO=/app/sword/schenker/support/luis/MASSAUTO
-Error=/app/sword/schenker/data/error
 
 Year=$(date '+%Y');
 Today=$(date '+%Y_%m%d');
