@@ -1,0 +1,57 @@
+#!/bin/bash
+
+###########################################################
+#Create this script to handle exp files automatically.
+#2020.01.05
+#
+#
+#
+#
+###########################################################
+
+
+COM=/app/sword/schenker/comsys
+
+
+#advise to input the correct filename
+ls ${COM}/COMS*/agr/*inbound/exp/$1 &>/dev/null
+if [[ -z "$1" || $? -ne 0  ]]
+then echo -e "Please input the whole inbound file name."
+exit 
+fi
+
+#extract the necessary variables
+agreement=`echo $1|cut -d. -f1`
+filename=`echo $1|cut -d. -f3-`
+error_sup=/app/sword/schenker/support/error
+exp_directory=`ls ${COM}/COMS*/agr/*inbound/exp/$1|cut -d. -f1|sed 's/\(.*exp\).*/\1/'`
+com_direcroty=`ls ${COM}/COMS*/agr/*inbound/exp/$1|cut -d. -f1|sed 's/\(.*\)\/agr.*/\1/'`
+sup_comsys=`echo com_direcroty|sed 's/comsys/support/'`
+archive_date=`date +%Y/%m`
+
+#display the pending file:
+echo -e ">>>there is one inbound file received:"
+ls ${COM}/COMS*/agr/*inbound/exp/$1
+
+
+#check log to judge if the file is already successfully transferred earlier
+grep $file ${com_direcroty}/log/log | grep 'Successfully created input file' &>/dev/null
+if [ $? -eq 0 ]
+	then echo -e "the file is already transferred successfully earlier as below:" 
+		 grep $file ${com_direcroty}/log/log| tail -10
+		 echo;echo -e ">>>housekeeping in the shell:"
+		 ls -d ${sup_comsys}/${agreement} &>/dev/null
+		 if [ $? -eq 0 ];then
+		 /usr/bin/mv -v $exp_directory/$1 ${sup_comsys}/${agreement}
+		 else /usr/bin/mv -v $exp_directory/$1 ${error_sup}/${archive_date=}
+		 exit
+	else 	 	echo;echo -e ">>>the file is not transfered successfully due to: "
+				grep $file ${com_direcroty}/log/log| tail -10
+				echo;echo -e ">>>Move to next step:"
+				/usr/bin/mv -v $exp_directory/$1 $com_direcroty/comexp_ok/
+				echo;echo -e "Sleep 10 seconds to check the log information..."
+				sleep 10
+				grep $file ${com_direcroty}/log/log | tail -10
+		 fi
+fi
+
