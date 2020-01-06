@@ -6,52 +6,37 @@
 #
 #
 #
-#
+#2020.01.07	fixed Manually test and debug 
 ###########################################################
 
-
 COM=/app/sword/schenker/comsys
+imp_directory=`dirname ${COM}/COMS*/agr/*outbound/imp/$1`
+agr_directory=${imp_directory%/*}
+
+#echo the current pending file
+echo -e ">>>pending file as below:"
+echo -e "**********************************************************************************************************************"
+echo -e `dirname ${COM}/COMS*/agr/*outbound/imp/$1`:
+echo -e "**********************************************************************************************************************"
+echo -e "$1"
+echo -e "**********************************************************************************************************************"
 
 
-#advise to input the correct filename
-ls ${COM}/COMS*/agr/*inbound/exp/$1 &>/dev/null
-if [[ -z "$1" || $? -ne 0  ]]
-then echo -e "Please input the whole inbound file name."
-exit 
-fi
+#check the agreement parameters:
+echo;echo -e ">>>the parameters as below:"
+grep -E 'Protocol|RemoteHost|User|RemoteDir|Description' ${agr_directory}/*xml
 
-#extract the necessary variables
-agreement=`echo $1|cut -d. -f1`
-filename=`echo $1|cut -d. -f3-`
-error_sup=/app/sword/schenker/support/error
-exp_directory=`ls ${COM}/COMS*/agr/*inbound/exp/$1|cut -d. -f1|sed 's/\(.*exp\).*/\1/'`
-com_direcroty=`ls ${COM}/COMS*/agr/*inbound/exp/$1|cut -d. -f1|sed 's/\(.*\)\/agr.*/\1/'`
-sup_comsys=`echo com_direcroty|sed 's/comsys/support/'`
-archive_date=`date +%Y/%m`
-
-#display the pending file:
-echo -e ">>>there is one inbound file received:"
-ls ${COM}/COMS*/agr/*inbound/exp/$1
+#check the error log
+echo;echo -e ">>>check the log and find the issue below:"
+latest_protlog=`ls -t  ${agr_directory}/prot|head -1`
+grep $1 ${agr_directory}/prot/${latest_protlog} | head -10
+echo -e "......"
 
 
-#check log to judge if the file is already successfully transferred earlier
-grep $file ${com_direcroty}/log/log | grep 'Successfully created input file' &>/dev/null
-if [ $? -eq 0 ]
-	then echo -e "the file is already transferred successfully earlier as below:" 
-		 grep $file ${com_direcroty}/log/log| tail -10
-		 echo;echo -e ">>>housekeeping in the shell:"
-		 ls -d ${sup_comsys}/${agreement} &>/dev/null
-		 if [ $? -eq 0 ];then
-		 /usr/bin/mv -v $exp_directory/$1 ${sup_comsys}/${agreement}
-		 else /usr/bin/mv -v $exp_directory/$1 ${error_sup}/${archive_date=}
-		 exit
-	else 	 	echo;echo -e ">>>the file is not transfered successfully due to: "
-				grep $file ${com_direcroty}/log/log| tail -10
-				echo;echo -e ">>>Move to next step:"
-				/usr/bin/mv -v $exp_directory/$1 $com_direcroty/comexp_ok/
-				echo;echo -e "Sleep 10 seconds to check the log information..."
-				sleep 10
-				grep $file ${com_direcroty}/log/log | tail -10
-		 fi
-fi
 
+
+**********************************************************************************************************************
+/app/sword/schenker/comsys/COMS1_06/agr/APPLEXDASH_outbound/imp:              1 file(s)
+**********************************************************************************************************************
+     oldest file: -rw-rw---- 1 comsys b2bi 224 Jan  6 21:40 APPLEXDASH_outbound.76204718.dbschenker_INDC_20200107020947.csv
+**********************************************************************************************************************
