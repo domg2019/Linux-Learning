@@ -1,0 +1,25 @@
+functions:
+
+monitor
+getBDID
+sameFile
+clean
+catAgr
+grepAgr
+cdArchive_G
+cdArchive_A
+0byte --> fzbf
+mysplit  --> llsplit
+hkOutboundFile
+
+ToDo functions:
+catlist
+exp
+checkRemote
+
+
+
+Other scripts:
+
+llinbound/outbount/0byte  migration
+stuck agreement script
