@@ -1,15 +1,19 @@
 #!/bin/bash
 
 ##########################################################################################################
-#This script aims to run the Massfilter files (less than 2000) automatilly to improve the work efficiance 
+#Program:	This script aims to run the Massfilter files (less than 2000) automatilly to improve the work efficiance 
+#Author:	Luis Liu   luis.liu@dbschenker.com
+#History:
 #
-#
-#	12/30/2019	-luis	Fix the bug that runmass won't work if there is no alias_B2Bi. Add the judgement 
-#				that only Luis can use this script.
-#	12/16/2019      -Luis  Impleted the function. add the scripts to check shift end time point
-#	11/1/2019 		-Luis  Updated. Checking Massfilter files count
-#   8/31/2019 		-Luis  Added this script to record the MassFilter files' Value
+#	7/30/2020	-Luis		Update that the script will exist when the average single file is bigger than 10M
+#	12/16/2019	-Luis		Impleted the function. add the scripts to check shift end time point
+#	11/1/2019	-Luis		Updated. Checking Massfilter files count
+#  	8/31/2019 	-Luis		Added this script to record the MassFilter files' Value
 ##########################################################################################################
+
+#script works only when luis login
+user=`who|sed -n '/luisliu1/p'|awk '{print $1}'|uniq`
+[ "$user" != "luisliu1" ] && echo -e "script only works when luis login. contact luis in case of any concern." && exit
 
 . $FRAME_ROOT/framework/LHScriptFunctions
 #. /home/b2bi/alias_B2Bi 1>/dev/null
@@ -19,19 +23,16 @@ Error=/app/sword/schenker/data/error
 
 Year=$(date '+%Y');
 Today=$(date '+%Y_%m%d');
-
-#only specific user can use this script
-user=`pinky|sed -n '/luisliu1/p'|awk '{print $1}'|uniq`
-idletime=`pinky|sed -n '/luisliu1/p'|cut -c 40-44| cut -d: -f1|sort|sed -n 1p|bc`
-if [[ "$user" != "luisliu1"  || "$idletime" -ge 2 ]];then echo -e "permission forbidden.";exit;fi
-
-Year=$(date '+%Y');
-Today=$(date '+%Y_%m%d');
-
 #judge if the folder is bigger than 100M
-  SIZE=`du MASSAUTO|awk 'BEGIN{size=0}{size+=$1}END{print size/1024}'|cut -d. -f1`
-  [ $SIZE -ge 100 ] && echo -e "The folder bigger than 100M. Kindly inform luis and then continue" && exit 10
-  
+SIZE=`du MASSAUTO|awk 'BEGIN{size=0}{size+=$1}END{print size/1024/1024}'|cut -d. -f1`
+[ $SIZE -ge 100 ] && echo -e "The folder bigger than 100M. Kindly inform luis and then continue" && exit 10
+
+#Only hanle files less than 1800 and average file size is less than 1800
+[ "$(ls $Error/MassFilter* | wc -l | bc )" -gt 1800 ] && "More than 1800 MassFilter files arrived. Please handle them automatically!!!" && exit 10
+M_count=`ls $Error/MassFilter*arc|wc -l|bc`
+S_size=`l $Error/MassFilter*arc|awk 'BEGIN{size=0}{size+=$5}END{print size/1024/1024}'|cut -d. -f1`
+[ $S_size -ge 10 ] && echo -e "Single file size is bigger than 10 M. Kindly handle them manually."
+
 #copy this function from alias   
 function runmass()
 {
@@ -67,12 +68,14 @@ function runmass()
             fi
         fi
     fi
+
 }
 
 while (true);
 do	
 
 #	check if it's the end of the shift. notice the winter time and summer time is different.
+  clear;date;
 	wstime=`date +%m`
 	time=`date +%H`
 	if [[ "$wstime" == "10" || "$wstime" == "11" || "$wstime" == "12" || "$wstime" == "01" || "$wstime" == "02" || "$wstime" == "03" ]]
@@ -85,6 +88,10 @@ do
 		exit 10
 		fi
 	fi
+
+#delete the file that old than 30 days.
+	find ./MASSAUTO/ -type f -mtime +30 -exec rm -rf {} \;
+
 	
 #	create one today folder to save the remafi history.	
 	if [ ! -d  "$MASSAUTO/$Year/$Today" ]
@@ -92,17 +99,20 @@ do
 	fi 
 
 	if   [[ "$(ls $Error/MassFilter* | wc -l | bc )" != 0 && "$(ls $Error/MassFilter* | wc -l | bc )" -le 1800 ]]
-			then	echo "Massfilter files come";
+			then	echo -e "Massfilter files come.....";
 					Count=$(ls $Error/MassFilter* | awk -F. '{print $2}' | uniq | wc -l | bc);
 					for i in $(seq $Count);
 					do  PID=$(ls $Error/MassFilter* | awk -F. '{print $2}' | uniq | sort | sed -n "$i"p);
                         touch $MASSAUTO/$Year/$Today/$PID.txt;
 						runmass $PID >> $MASSAUTO/$Year/$Today/$PID.txt;
 					done
-			else	echo  "++++++++++++++++++++++++++";
+					echo "Running completed!"
+			elif [[ "$(ls $Error/MassFilter* | wc -l | bc )" -gt 1800 ]] ;then
+			      echo -e "More than 1800 MassFilter files arrived. Please handle them automatically!!!"
+			else	echo -e "No MassFilter files arrived";
 	fi      2>/dev/null;
+
 #	set the loop function
-	echo "Running completed!"
 	echo -e "Next check will be executed 10 minutes later.\nPress Enter to check again immediately or <CTRL>+C to stop it."
 	read -t 600 command
 	if [ "$command" == "" ];
@@ -110,4 +120,3 @@ do
 	fi
 
 done;
-
