@@ -13,12 +13,9 @@
 #check the frequency. Default value is 30 days.
 [[ $2 == '' ]] && Days=30 || Days=$2
 
-#echo -en "How many days Massfilter issue happens for PID $1 during past $Days days:  \t"
-#echo -en "How many \033[42;37m days \033[0m Massfilter issue happens for PID \033[42;37m $1 \033[0m during past \033[42;37m $Days \033[0m days:  \t"
-Days_CHECK=`find /app/sword/schenker/support/statlog/MassFilter/history -mtime -"$Days" -name "$1*" | wc -l`
 
-#echo -en "How many times Massfilter issue happens for PID $1 during past $Days days: \t"
-#echo -en "How many \033[42;37m times \033[0m Massfilter issue happens for PID \033[42;37m $1 \033[0m during past \033[42;37m $Days \033[0m days: \t"
+#Check the MassFilter frequency for the PID
+Days_CHECK=`find /app/sword/schenker/support/statlog/MassFilter/history -mtime -"$Days" -name "$1*" | wc -l`
 Times_Check=$(for logfile in `find /app/sword/schenker/support/statlog/MassFilter/log  -mtime -"$Days" -name "b2biprd*"`;do grep $1 $logfile;done | wc -l)
 
 echo -e "MassFilter for PID: \033[42;37m $1 \033[0m happened \033[42;37m $Days_CHECK \033[0m days and \033[42;37m $Times_Check \033[0m times in past \033[42;37m $Days \033[0m days!"
