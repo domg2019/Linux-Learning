@@ -1,0 +1,24 @@
+#!/bin/bash
+
+##########################################################################################################
+# This script aims to check pending files in jms queue for Shield & Scintilla
+# Kindly contact luis.liu@dbschenker.com if you have any concerns
+#
+#       1/14/2021      -Luis              Script Created
+##########################################################################################################
+
+#Statistics for Scintilla
+echo -e  "\033[42;37mPending files statistics for Scintilla: \033[0m"
+echo -en "Total pending files for Scintilla: \t\t"
+find /app/sword/schenker/jmsclients/Scintilla*/ -maxdepth 1 -type f -mmin +5 -name "msg*"|wc -l
+if [ `find /app/sword/schenker/jmsclients/Scintilla*/ -maxdepth 1 -type f -mmin +5 -name "msg*"|wc -l` -ne 0 ];then
+echo -e "Current first 10th pending files queue:"
+find /app/sword/schenker/jmsclients/Scintilla*/ -maxdepth 1 -type f -mmin +5 -name "msg*"|cut -d/ -f6|uniq -c|sort -r|head -10;fi
+
+#Statistics for Sheild
+echo -e "\033[42;37mPending files statistics for Sheild: \033[0m "
+echo -en "Total pending files for Sheild: \t\t"
+find /app/sword/schenker/jmsclientsShield/SHIELD*/ -maxdepth 1 -type f -mmin +5 -name "msg*"|wc -l
+if [ `find /app/sword/schenker/jmsclientsShield/SHIELD*/ -maxdepth 1 -type f -mmin +5 -name "msg*"|wc -l` -ne 0 ];then
+echo -e "Current first 10th pending files queue:"
+find /app/sword/schenker/jmsclientsShield/SHIELD*/ -maxdepth 1 -type f -mmin +5 -name "msg*"|cut -d/ -f6|uniq -c|sort -r|head -10;fi
