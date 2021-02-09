@@ -17,11 +17,11 @@ JMS=/app/sword/shared/mounts/nfsserver/ComServer1/JMS
 if [[ "$1" == "sw" ]];then
 for i in `ls $JMS`;
 do echo -en "$i\t";
-find $JMS/$i -type f -name "JMS*arc" -mtime -7 -cmin +30 |wc -l;
+find $JMS/$i -type f -name "JMS*arc" -mtime -7 -cmin +30 2>/dev/null |wc -l;
 grep "BDID" $JMS/$i/b2biprdcom1_shield/SHIELD*/*att 2>/dev/null | cut -d: -f2|cut -d" " -f2|cut -c 3-12| sort| uniq -c;
 done ;
 echo -en "Total number is: ";
-find $JMS/ -type f -name "JMS*arc" -mtime -7 -cmin +30|wc -l;date
+find $JMS/ -type f -name "JMS*arc" -mtime -7 -cmin +30 2>/dev/null |wc -l;date
 exit;
 fi
 
@@ -68,8 +68,8 @@ if [[ "$1" == "sh" ]];then
 echo;echo -e "\033[41;37mChecking nfs_JMS Shield backlogs:\033[0m"
 for i in `ls $JMS`;
 do echo -e "\033[41;37m$i\033[0m";
-for cus_name in `find $JMS/$i -maxdepth 3 -type d -name "SHIELD*"|grep -v "HealthCheck_IQ"|cut -d/ -f11|sed 's/.*PROD.\(.*\)/\1/g'|cut -d. -f1|sort|uniq`
-do cou_customer=`find $JMS/$i/b2biprdcom1_shield/SHIELD*$cus_name* -type f -mtime -7 -cmin +"$time"| wc -l`
+for cus_name in `find $JMS/$i -maxdepth 3 -type d -name "SHIELD*" 2>/dev/null |grep -v "HealthCheck_IQ"|cut -d/ -f11|sed 's/.*PROD.\(.*\)/\1/g'|cut -d. -f1|sort|uniq`
+do cou_customer=`find $JMS/$i/b2biprdcom1_shield/SHIELD*$cus_name* -type f -mtime -7 -cmin +"$time" 2>/dev/null | wc -l`
 if [[ "$cou_customer" -ne 0 ]];then
          echo -e "$cus_name\t\t$cou_customer";
         for cus_queue in `find $JMS/$i -maxdepth 3 -type d -name "SHIELD*$cus_name*"`;
