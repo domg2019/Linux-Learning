@@ -73,14 +73,14 @@ do cou_customer=`find $JMS/$i/b2biprdcom1_shield/SHIELD*$cus_name* -type f -mtim
 if [[ "$cou_customer" -ne 0 ]];then
          echo -e "$cus_name\t\t$cou_customer";
         for cus_queue in `find $JMS/$i -maxdepth 3 -type d -name "SHIELD*$cus_name*"`;
-                do cou_q_customer=`find $cus_queue -type f -mtime -7 -cmin +"$time"|wc -l`;
+                do cou_q_customer=`find $cus_queue -type f -mtime -7 -cmin +"$time" 2>/dev/null |wc -l`;
                 if [[ "$cou_q_customer" -ne 0 ]];then
                 echo -e `basename $cus_queue|sed 's/.*PROD.\(.*\)/\1/g'` "\t\t$cou_q_customer";fi;
         done;
 fi
 done;
 done;
-echo -en "Grand total for all files:"; find $JMS/Parallel*/b2biprdcom1_shield/SHIELD* -type f -mtime -7 -cmin +"$time"|wc -l;
+echo -en "Grand total for all files:"; find $JMS/Parallel*/b2biprdcom1_shield/SHIELD* -type f -mtime -7 -cmin +"$time" 2>/dev/null |wc -l;
 date;
 exit;
 fi
@@ -91,11 +91,11 @@ echo;echo -e "\033[41;37mChecking nfs_JMS Scintilla backlogs:\033[0m"
 for i in `ls $JMS`;
 do echo -e "\033[41;37m$i\033[0m";
 for queue_name in `ls -d $JMS/$i/b2biprdcom1_1/Scintilla*`;do
-queue_count=`find $queue_name -type f -mtime -7 -cmin +"$time"|wc -l`
+queue_count=`find $queue_name -type f -mtime -7 -cmin +"$time" 2>/dev/null |wc -l`
 if [[ "$queue_count" -ne 0  ]];then
-echo -en `basename $queue_name` "\t\t$queue_count";fi
+echo -e `basename $queue_name` "\t\t$queue_count";fi
 done;
 done;
-echo -en "Grand total for all files:"; find $JMS/Parallel*/b2biprdcom1_1/Scintilla* -type f -mtime -7 -cmin +"$time"|wc -l;
+echo -en "Grand total for all files:"; find $JMS/Parallel*/b2biprdcom1_1/Scintilla* -type f -mtime -7 -cmin +"$time" 2>/dev/null |wc -l;
 date;
 fi;
