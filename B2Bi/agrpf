@@ -1,25 +1,40 @@
 #!/bin/bash
 
 ######################################################################
-#Program:       Create this script to help to handle inbound and outbound files 
+#Program:       Create this script to help to handle inbound and outbound files
 #               more easily. Two seprated scripts have been tested for some time
 #               write this one to intergare these two scripts.
 #History:       2020.13.08      Luis    Released.
-# 
+#
 #EmailAdd:      luis.liu@dbschenker.com
 ######################################################################
 
+#create log file
+echo -e User: `who am i|cut -c 1-8` Input Value:$* '\t' Current Time: `date`  >> /app/sword/schenker/support/luis/log/agrpf.log
 
+user=`who am i|cut -c 1-8`
+
+#only specific user can use this function
+[[ "$user" != "luisliu1" ]] && echo -e "Permission forbidden.Kindly contact luis.liu@schenker.com or lars.herrlein@dbschenker.c
+om for access. " && exit
+
+#only specific user can use this script
+Current_user=`who am i|cut -d" " -f1`
 COM=/app/sword/schenker/comsys
 BOUND=`echo $1|sed 's/.*\([oi][a-zA-Z]*bound\).*/\1/'`;
 
 function Inbound_pendingfile_handling ()
 {
+
+#only specific user can use this function
+if [[ "$user" != "luisliu1" &&  "$user" != "tomyli01" ]];then echo -e "Permission forbidden.Kindly contact luis.liu@schenker.com or lars.herrlein@dbschenker.com for access. ";exit;fi
+
+
 #advise to input the correct filename
 ls ${COM}/COMS*/agr/*inbound/exp/$1 &>/dev/null
 if [[ -z "$1" || $? -ne 0  ]]
 then echo -e "Please input the whole inbound file name."
-exit 
+exit
 fi
 
 #extract the necessary variables
@@ -31,7 +46,7 @@ exp_directory=`ls ${COM}/COMS*/agr/*inbound/exp/$1|cut -d. -f1|sed 's/\(.*exp\).
 com_direcroty=`ls ${COM}/COMS*/agr/*inbound/exp/$1|cut -d. -f1|sed 's/\(.*\)\/agr.*/\1/'`
 sup_comsys=`echo $com_direcroty|sed 's/comsys/support/'`
 
-#display the pending file:
+#  display the pending file:
 echo -e ">>>there is one inbound file received:"
 ls -l ${COM}/COMS*/agr/*inbound/exp/$1
 
@@ -40,29 +55,27 @@ ls -l ${COM}/COMS*/agr/*inbound/exp/$1
 #grep $real_filename ${com_direcroty}/log/log | grep 'Successfully created input file' &>/dev/null
 grep $real_filename ${com_direcroty}/log/log | grep 'ExportFileTask' &>/dev/null
 if [ $? -eq 0 ]
-        then echo;echo -e ">>>the file is already transferred successfully earlier as below:" 
+        then echo;echo -e ">>>the file is already transferred successfully earlier as below:"
                  grep $real_filename ${com_direcroty}/log/log|grep -B 10 'ExportFileTask'
                  echo;echo -e ">>>housekeeping in the shell:"
                  ls -d ${sup_comsys}/${agreement} &>/dev/null
-                 if [ $? -eq 0 ]; then
-                 /usr/bin/mv -v $exp_directory/$1 ${sup_comsys}/${agreement}
-#echo -e "test success. move file to housekeeping"
+                 if [ $? -eq 0 ]; then  /usr/bin/mv -v $exp_directory/$1 ${sup_comsys}/${agreement}
                  else   mkdir ${sup_comsys}/${agreement}
                         /usr/bin/mv -v $exp_directory/$1 ${sup_comsys}/${agreement}
-# echo -e "test success. move file to housekeeping"
-                 exit 10
+                        exit 10
                  fi
-        else            echo;echo -e ">>>check the archive folder and the transfer log but there is no record. Also no records in SWING."
-                                echo;echo -e ">>>the file is not transfered successfully due to: "
+        else            echo;echo -e ">>>check the archive folder and the transfer log but there is no record."
+                                echo;echo -e ">>>the file is not transferred successfully due to: "
                                 latest_protlog=`ls -t ${com_direcroty}/agr/${agreement}/prot|head -1`
                                 grep -C3 ':ERROR:' ${com_direcroty}/agr/${agreement}/prot/${latest_protlog}
-#                               echo;echo -e ">>>Move to next step:"
-#                               /usr/bin/mv -v $exp_directory/$1 $com_direcroty/comexp_ok/
+                               echo;echo -e ">>>Move to next step:"
+                               /usr/bin/mv -v $exp_directory/$1 $com_direcroty/comexp_ok/
                                 echo;echo -e ">>>Sleep 15 seconds to check the log information..."
                                 sleep 15
-                                logcount_filename=`echo $count_filename|cut -d. -f2-` 
+                                logcount_filename=`echo $count_filename|cut -d. -f2-`
                                 grep $logcount_filename ${com_direcroty}/log/log | tail -10
 fi
+
 }
 
 
@@ -70,25 +83,28 @@ fi
 function Outbound_pendingfile_handling ()
 {
 #advise to input the correct filename
-ls ${COM}/COMS*/agr/*outbound/imp/$1 &>/dev/null
+ls ${COM}/COMS*/agr/*outbound/imp/"$1" &>/dev/null
 if [[ -z "$1" || $? -ne 0  ]]
 then echo -e "Please input the whole outbound file name. Or, kindly confirm if pending file still there."
-exit 
+exit
 fi
 
 agreement=`echo $1|cut -d. -f1`
-imp_directory=`dirname ${COM}/COMS*/agr/*outbound/imp/$1`
+imp_directory=`dirname ${COM}/COMS*/agr/*outbound/imp/"$1"`
 agr_directory=${imp_directory%/*}
 
 
 #echo the current pending file
 echo -e ">>>pending file as below:"
 echo -e "**********************************************************************************************************************"
-echo -en `dirname ${COM}/COMS*/agr/*outbound/imp/$1`:
+echo -en `dirname ${COM}/COMS*/agr/*outbound/imp/"$1"`:
 echo -en "\t pending files: "; find $imp_directory -mmin +30 -type f|wc -l
 echo -e "**********************************************************************************************************************"
 echo -en "     oldest file:";ls -lt $imp_directory/${agreement}* | tail -1|sed 's/\(.*\ \)\/app.*imp\//\1/'
-echo -en "most recent file:";find $imp_directory -mmin +30 -type f|tail -1 | xargs ls -l|sed 's/\(.*\ \)\/app.*imp\//\1/'
+if [ `ls -lt $imp_directory/${agreement}* |wc -l|bc` -gt 1 ];then
+most_recent_file=`find $imp_directory -mmin +30 -type f|tail -1`
+echo -en "most recent file:";ls -l "$most_recent_file" |sed 's/\(.*\ \)\/app.*imp\//\1/'
+fi
 echo -e "**********************************************************************************************************************"
 
 
@@ -99,15 +115,15 @@ grep -v 'Password' ${agr_directory}/*xml
 
 #check the error log. handle different situations per the ERRORs
 echo;echo -e ">>>check the log and find the issue below:"
-latest_protlog=`ls -t  ${agr_directory}/prot|head -1`
-error_count=`grep 'ERROR:' ${agr_directory}/prot/${latest_protlog}|wc -l|bc`
-case $error_count in 
+latest_protlog=`ls -t ${agr_directory}/prot/ftp* 2> /dev/null  |head -1|sed 's/.*\(ftp..*\)/\1/'`
+error_count=`grep 'ERROR:' ${agr_directory}/prot/${latest_protlog} 2> /dev/null |wc -l|bc`
+case $error_count in
                         0)
                         #grep $1 ${agr_directory}/prot/${latest_protlog} | head -10
                         echo -e "No error information found in latest prot log. Will check it manually"
                         ;;
                         1)
-                        grep -C 5 'ERROR:' ${agr_directory}/prot/${latest_protlog} 
+                        grep -C 5 'ERROR:' ${agr_directory}/prot/${latest_protlog}
                         ;;
                         2)
                         grep  -C 2 'ERROR:' ${agr_directory}/prot/${latest_protlog}
@@ -118,32 +134,36 @@ case $error_count in
 esac
 
 #Per the 5th character to privde probable handling way
-echo;
+[ "$user" != "luisliu1" ]  && exit
+
+echo
 #extrac the 5th letter
 Region=`echo $1|cut -c 5`;
 case $Region in
       A)
       echo -e ">>>Email to contacts and CC Dean"
       ;;
-      U)
-      echo -e ">>>Email to related contacts"
-      ;;
-      C)
-      echo -e ">>>Email to related contacts"
-      ;;
-      E)
-      echo -e ">>>Email to related contacts"
-      ;;
       L)
-      echo -e ">>>Sub-call to related team"
+      echo -e ">>>Escalate to DE - B2Bi SDAG AM"
       ;;
       *)
-      echo -e ">>>Sub-call to HOF - SWORD AM Europe & NMEA"
+      echo -e ">>>Email to related contacts"
       ;;
 esac
 }
 
-if [ $BOUND == "inbound" ];then Inbound_pendingfile_handling $1;
-elif [ $BOUND == "outbound" ];then Outbound_pendingfile_handling  $1;
+function Ftp_download_pendingfile_handling ()
+{
+
+echo -en ">>>Possible Agreement(s) and filemask information as below:"
+for Agreement in `grep $BOUND /app/sword/schenker/comsys/COMS*/agr/*inbound/*xml|cut -d: -f1`;
+    do echo $Agreement;
+    grep -i filemask $Agreement;
+done
+
+}
+
+if [ "$BOUND" == "inbound" ];then Inbound_pendingfile_handling $1;
+elif [ "$BOUND" == "outbound" ];then Outbound_pendingfile_handling  $1;
 else echo -e "Kindly input correct references!";
 fi
