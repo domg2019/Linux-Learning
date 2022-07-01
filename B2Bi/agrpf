@@ -15,7 +15,7 @@ echo -e User: `who am i|cut -c 1-8` Input Value:$* '\t' Current Time: `date`  >>
 user=`who am i|cut -c 1-8`
 
 #only specific user can use this function
-[[ "$user" != "luisliu1" ]] && echo -e "Permission forbidden.Kindly contact luis.liu@schenker.com or lars.herrlein@dbschenker.c
+[[ "$user" != "luisliu1" && "$user" != "rainzeng" ]] && echo -e "Permission forbidden.Kindly contact luis.liu@schenker.com or lars.herrlein@dbschenker.c
 om for access. " && exit
 
 #only specific user can use this script
@@ -23,6 +23,7 @@ Current_user=`who am i|cut -d" " -f1`
 COM=/app/sword/schenker/comsys
 BOUND=`echo $1|sed 's/.*\([oi][a-zA-Z]*bound\).*/\1/'`;
 
+#This function aims to handle inbound message automatically
 function Inbound_pendingfile_handling ()
 {
 
@@ -79,7 +80,7 @@ fi
 }
 
 
-
+#This function aims to handle outbound message automatically
 function Outbound_pendingfile_handling ()
 {
 #advise to input the correct filename
@@ -115,11 +116,31 @@ grep -v 'Password' ${agr_directory}/*xml
 
 #check the error log. handle different situations per the ERRORs
 echo;echo -e ">>>check the log and find the issue below:"
-latest_protlog=`ls -t ${agr_directory}/prot/ftp* 2> /dev/null  |head -1|sed 's/.*\(ftp..*\)/\1/'`
+Protocol_type=`grep Protocol ${agr_directory}/*xml|cut -d">" -f2|cut -d"<" -f1`
+
+if [ ${Protocol_type} == "script" ];then
+latest_protlog=`ls -t ${agr_directory}/prot/*log 2> /dev/null  |head -1|sed 's/.*\(sftp..*\)/\1/'`
+error_count=`grep -i error ${agr_directory}/prot/${latest_protlog} 2> /dev/null |wc -l|bc`
+case $error_count in
+                        0)
+                        grep -iC5 existing  ${agr_directory}/prot/${latest_protlog} | sed -n 1,10p
+                        [[ "$?" -eq 0 ]] && echo -e "No error information found in latest prot log. Will check it manually"
+                        ;;
+                        1)
+                        grep -iC 5 error  ${agr_directory}/prot/${latest_protlog}
+                        ;;
+                        2)
+                        grep  -iC 2 error  ${agr_directory}/prot/${latest_protlog}
+                        ;;
+                        *)
+                        grep -iC 5 error  ${agr_directory}/prot/${latest_protlog} | sed -n 1,10p
+                        ;;
+esac
+
+else latest_protlog=`ls -t ${agr_directory}/prot/ftp* 2> /dev/null  |head -1|sed 's/.*\(ftp..*\)/\1/'`
 error_count=`grep 'ERROR:' ${agr_directory}/prot/${latest_protlog} 2> /dev/null |wc -l|bc`
 case $error_count in
                         0)
-                        #grep $1 ${agr_directory}/prot/${latest_protlog} | head -10
                         echo -e "No error information found in latest prot log. Will check it manually"
                         ;;
                         1)
@@ -132,24 +153,10 @@ case $error_count in
                         grep -C 5 'ERROR:' ${agr_directory}/prot/${latest_protlog} | sed -n 1,10p
                         ;;
 esac
+fi
 
-#Per the 5th character to privde probable handling way
-[ "$user" != "luisliu1" ]  && exit
+echo;echo -e ">>>Email to related contacts"
 
-echo
-#extrac the 5th letter
-Region=`echo $1|cut -c 5`;
-case $Region in
-      A)
-      echo -e ">>>Email to contacts and CC Dean"
-      ;;
-      L)
-      echo -e ">>>Escalate to DE - B2Bi SDAG AM"
-      ;;
-      *)
-      echo -e ">>>Email to related contacts"
-      ;;
-esac
 }
 
 function Ftp_download_pendingfile_handling ()
