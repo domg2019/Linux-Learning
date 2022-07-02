@@ -1,3 +1,11 @@
+Auto-creating tickets!
+
+
+
+
+
+
+
 New TODO list on 30th July 2020:
 1. mfauto.sh:
    add one function to judge how much big for each file averagely. Make sure the script works only when average file size is less then 10M and file amount is less than 1800.
