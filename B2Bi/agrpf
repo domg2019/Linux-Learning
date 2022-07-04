@@ -4,7 +4,10 @@
 #Program:       Create this script to help to handle inbound and outbound files
 #               more easily. Two seprated scripts have been tested for some time
 #               write this one to intergare these two scripts.
-#History:       2020.13.08      Luis    Released.
+#
+#History:       2022.07.04      Luis    Update the function for outbound pending messages. Now outbound pending messages 
+#                                       will be handled per protocols: sftp,ftp(s)
+#               2020.13.08      Luis    Released.
 #
 #EmailAdd:      luis.liu@dbschenker.com
 ######################################################################
