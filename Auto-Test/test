@@ -1,0 +1,32 @@
+#!/bin/bash
+
+######################################################################
+#Program:       
+#
+#History:       2022.07.06     Luis    Released.
+#
+#EmailAdd:      luis.liu@dbschenker.com
+######################################################################
+
+ErrorFolder=/app/sword/schenker/data/error
+LuisFolder=/app/sword/schenker/support/luis
+
+touch ${LuisFolder}
+
+#Use Time:H(hour) to judge if it's time to stop monitor
+TimeStopA=9
+TimeStopE=17
+TimestopU=1
+TimeNow=`date +%H|bc`
+
+#check errors in error folder:
+#do clean_up to remove ignored messages
+clean_up -v;
+
+
+
+
+
+
+
+
