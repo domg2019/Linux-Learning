@@ -127,7 +127,7 @@ error_count=`grep -i error ${agr_directory}/prot/${latest_protlog} 2> /dev/null 
 case $error_count in
                         0)
                         grep -iC5 existing  ${agr_directory}/prot/${latest_protlog} | sed -n 1,10p
-                        [[ "$?" -eq 0 ]] && echo -e "No error information found in latest prot log. Will check it manually"
+                        [[ "$?" -eq 1 ]] && echo -e "No error information found in latest prot log. Will check it manually"
                         ;;
                         1)
                         grep -iC 5 error  ${agr_directory}/prot/${latest_protlog}
