@@ -1,0 +1,18 @@
+#!/bin/bash
+# how's the result if you keep buying one same blue ball all the time
+
+echo -e "Kinldy input how many times you want to buy:"
+read count
+sum=2;
+mul=1;
+if [[ "$count" == 1 ]];
+        then    money=$[$mul*2];
+                                echo "The total money need to spend is $money !!!";
+                elif [[ "$count" -ge 2 ]];
+                  then for ((i=2;i<=$count;i++));
+                                do tmpa=$(echo "scale=3; $sum / 3"| bc | awk '{print int($1+0.999)}');
+                                   mul=$tmpa;
+                                   sum=$[$[$mul*2]+$sum];
+                                done;
+fi
+money=$[$mul*2];
