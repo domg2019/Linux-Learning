@@ -1,12 +1,30 @@
 # list could be edited:
 https://listmoz.com/#hK285nf6vhMmkHtBDjP1
 
-
 # read version
 https://listmoz.com/view/kzj5rvzX7wNt159glBwl
 
 
+List as below:
+Test if email function works well in Test/Prod
 
-#Test on test app with b2bi works:
-mail -s TEST luis.liu@dbschenker.com < tmp.txt 
-This is one message from test app with b2bi.
+Test to send file content via email in Test/Prod
+
+Setup auto-email forward to sword.support
+
+Confirm with SNOW team if it's ok to auto-remove characters "FW:" when creating a ticket
+
+create one special folder which store every working day's hk records
+
+One PID only create one ticket per shift
+
+Auto check and delete the record once the the size is big
+
+check the specific size for the folder per different time, 3 days, 5 days, one weerk
+
+Add some known but not in cleanup issues for handling easilly
+
+
+Note:
+Last three items need to be completed.
+Add other ToDos such as print the PID folder list per times.
