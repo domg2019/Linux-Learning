@@ -19,7 +19,8 @@ function ref()
             echo $BDIDRefValues | grep -Eo "\{[^{}]+\}" | awk -F\" '{print $2" : "$4}'
         fi
         echo "TransactionAttribute : ";
-        echo -e "${transaction}\n";
+        echo "${transaction}";
+        echo -en "\n";
     done
 }
 
