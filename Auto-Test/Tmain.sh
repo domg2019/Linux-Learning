@@ -79,6 +79,7 @@ Kindly route TO:SWORD:AO:
 
 EOF
 hk ${single_pid} | tee -a ${luis_folder_dir}/${current_date}/${single_pid}/${single_pid}.txt
+cat  ${luis_folder_dir}/email_signature >>  ${luis_folder_dir}/${current_date}/${single_pid}/${single_pid}.txt
 #        /bin/mail -s PME_${single_pid} support.sword-csd@dbschenker.com < ${luis_folder_dir}/${current_date}/${single_pid}/${single_pid}.txt
 #        /bin/mail -s PME_${single_pid} luis.liu@dbschenker.com < ${luis_folder_dir}/${current_date}/${single_pid}/${single_pid}.txt
       else
