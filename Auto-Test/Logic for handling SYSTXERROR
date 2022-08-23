@@ -1,0 +1,93 @@
+# commands for extracting the 1st identical value verified. 
+for i in `ls SYSTXERROR*att`;do grep -A 1 "^TransactionAttribute" $i | sed -n 2p | cut -d, -f21 | cut -d"\"" -f2;done
+
+      
+      
+# test if the way removing non-number/letters works
+# 1. there are 2722 messages
+[b2bi@b2bitstapp1:/app/sword/schenker/support/luis/error]$ l SYSTXERROR*att | wc -l
+2722
+# extract the 1st value for transactionattribute, same number proves that this way works
+[b2bi@b2bitstapp1:/app/sword/schenker/support/luis/error]$ for i in `ls SYSTXERROR*att`;do grep -A 1 "^TransactionAttribute" $i | sed -n 2p | cut -d, -f21 | cut -d"\"" -f2;done |wc -l
+2722
+# use the way(removing non-number/letters characters) and comparing each sort of values. result is same.
+[b2bi@b2bitstapp1:/app/sword/schenker/support/luis/error]$ for i in `ls SYSTXERROR*att`;do grep -A 1 "^TransactionAttribute" $i | sed -n 2p | cut -d, -f21 | cut -d"\"" -f2;done | sort | uniq -c | sort -r
+   2060 SCXXEP09SG_inbound
+    494 QM.SWORD.TST
+     56 SCXXEP9SED_inbound
+     12 PANASROUPD_inbound
+     10 DNFSSTOWMS_inbound
+      8 t3://slmsg-fat.dc.signintra.com:7302
+      8 KATHARINA.BENTATA@DBSCHENKER.COM
+      6 SEM@ELEKTROLAND.AT
+      6 SAP
+      6 AMBERTEST
+      5 VALMT_BOOK_TO_FITSTINBED
+      5 SCNLLFCEIM_inbound
+      5 ATXDELLTRANSO
+      5 APPLE2SAAO_inbound
+      4 E2NET
+      3 APAC.SM.SIN.CPOD-APACTMS-UAT@DBSCHENKER.COM
+      2 VITALI.RUBINFAYN-EXTERN@DBSCHENKER.COM
+      2 TOM.FORTU@DBSCHENKER.COM
+      2 HPENTAS2TEST
+      2 GXS_AS2_ICS
+      2 GRENTXM2XM_inbound
+      2 ADIDAS_AU_inbound
+      1 https://b2b.sword-test.dbschenker.com:7383/exchange/IN/DESCUGENIN/314695198_fcc3e9ba_315.xml
+      1 https://b2b.sword-test.dbschenker.com:7383/exchange/IN/DESCUGENIN/314695198_f228b790_315.xml
+      1 https://b2b.sword-test.dbschenker.com:7383/exchange/IN/DESCUGENIN/314695198_d07746ad_315.xml
+      1 https://b2b.sword-test.dbschenker.com:7383/exchange/IN/DESCUGENIN/314695198_cbc8e362_315.xml
+      1 https://b2b.sword-test.dbschenker.com:7383/exchange/IN/DESCUGENIN/314695198_c8fa1c3d_315.xml
+      1 https://b2b.sword-test.dbschenker.com:7383/exchange/IN/DESCUGENIN/314695198_c8133c6d_315.xml
+      1 https://b2b.sword-test.dbschenker.com:7383/exchange/IN/DESCUGENIN/314695198_88d75718_315.xml
+      1 https://b2b.sword-test.dbschenker.com:7383/exchange/IN/DESCUGENIN/314695198_7fd836c5_315.xml
+      1 https://b2b.sword-test.dbschenker.com:7383/exchange/IN/DESCUGENIN/314695198_39a9fae6_315.xml
+      1 https://b2b.sword-test.dbschenker.com:7383/exchange/IN/DESCUGENIN/314695198_329b0fde_315.xml
+      1 https://b2b.sword-test.dbschenker.com:7383/exchange/IN/DESCUGENIN/314695198_227d1e39_315.xml
+      1 SEVGI.TAS@DBSCHENKERARKAS.COM.TR
+      1 SAFAE2CVJD_inbound
+      1 GTNEXUSAS2
+      1 ASTAS2T
+      1 APPLU4FEDB_ELK_inbound
+      1 ANNE.SCHLEIDER@DBSCHENKER.COM
+[b2bi@b2bitstapp1:/app/sword/schenker/support/luis/error]$ for i in `ls SYSTXERROR*att`;do grep -A 1 "^TransactionAttribute" $i | sed -n 2p | cut -d, -f21 | cut -d"\"" -f2;done | sed -e s/"\W"//g |sort | uniq -c | sort -r
+   2060 SCXXEP09SG_inbound
+    494 QMSWORDTST
+     56 SCXXEP9SED_inbound
+     12 PANASROUPD_inbound
+     10 DNFSSTOWMS_inbound
+      8 t3slmsgfatdcsignintracom7302
+      8 KATHARINABENTATADBSCHENKERCOM
+      6 SEMELEKTROLANDAT
+      6 SAP
+      6 AMBERTEST
+      5 VALMT_BOOK_TO_FITSTINBED
+      5 SCNLLFCEIM_inbound
+      5 ATXDELLTRANSO
+      5 APPLE2SAAO_inbound
+      4 E2NET
+      3 APACSMSINCPODAPACTMSUATDBSCHENKERCOM
+      2 VITALIRUBINFAYNEXTERNDBSCHENKERCOM
+      2 TOMFORTUDBSCHENKERCOM
+      2 HPENTAS2TEST
+      2 GXS_AS2_ICS
+      2 GRENTXM2XM_inbound
+      2 ADIDAS_AU_inbound
+      1 httpsb2bswordtestdbschenkercom7383exchangeINDESCUGENIN314695198_fcc3e9ba_315xml
+      1 httpsb2bswordtestdbschenkercom7383exchangeINDESCUGENIN314695198_f228b790_315xml
+      1 httpsb2bswordtestdbschenkercom7383exchangeINDESCUGENIN314695198_d07746ad_315xml
+      1 httpsb2bswordtestdbschenkercom7383exchangeINDESCUGENIN314695198_cbc8e362_315xml
+      1 httpsb2bswordtestdbschenkercom7383exchangeINDESCUGENIN314695198_c8fa1c3d_315xml
+      1 httpsb2bswordtestdbschenkercom7383exchangeINDESCUGENIN314695198_c8133c6d_315xml
+      1 httpsb2bswordtestdbschenkercom7383exchangeINDESCUGENIN314695198_88d75718_315xml
+      1 httpsb2bswordtestdbschenkercom7383exchangeINDESCUGENIN314695198_7fd836c5_315xml
+      1 httpsb2bswordtestdbschenkercom7383exchangeINDESCUGENIN314695198_39a9fae6_315xml
+      1 httpsb2bswordtestdbschenkercom7383exchangeINDESCUGENIN314695198_329b0fde_315xml
+      1 httpsb2bswordtestdbschenkercom7383exchangeINDESCUGENIN314695198_227d1e39_315xml
+      1 SEVGITASDBSCHENKERARKASCOMTR
+      1 SAFAE2CVJD_inbound
+      1 GTNEXUSAS2
+      1 ASTAS2T
+      1 APPLU4FEDB_ELK_inbound
+      1 ANNESCHLEIDERDBSCHENKERCOM
