@@ -167,7 +167,7 @@ echo;echo -e ">>>Email to related contacts"
 
 function Ftp_download_pendingfile_handling ()
 {
-    if [ ${file_dir} != "" ];
+    if [[ ${file_dir} != "" ]];
     then search_dir=`dirname ${file_dir} | cut -d"/" -f7-`;
     all_xml_files=`grep --color=auto -l ${search_dir} /app/sword/schenker/comsys/COMS*/agr/*inbound/*inbound_dump.xml`
         if [[ ${all_xml_files} != "" ]];
