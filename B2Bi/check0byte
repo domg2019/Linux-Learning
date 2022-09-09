@@ -1,0 +1,103 @@
+#!/bin/bash
+
+#disable this script as bug exists per ticket:INC005015822. Will analyze later
+
+#init
+errorFolder="/app/sword/schenker/data/error";
+info_only=false;
+
+#read options
+while getopts "d:k:i:h" arg
+do
+    case ${arg} in
+        d)
+            checkingDirectory=${OPTARG};
+            ;;
+        i)
+            emptyFileList=${OPTARG};
+            info_only=true;
+            ;;
+        k)
+            keyword=${OPTARG};
+            ;;
+        h)
+            echo "Usage : check0byte -i <filename>. The script will only check related information without housekeeping, historical info can be found with this option(much more time consuming), other options will be ignored when -i is used.";
+            echo "Usage : check0byte -d <directory>. The script will check zero byte file in provided directory, default direcoty /app/sword/schenker/data/error will be checked when -d is not used.";
+            echo "Usage : check0byte -k <keyword>. The script will filter empty files with provided keyword.";
+            exit;
+            ;;
+        *)
+            echo "Please use check0byte -h for help info";
+            ;;
+    esac
+done
+
+if [[ "" == ${emptyFileList} ]]; then
+    if [[ "" == ${checkingDirectory} ]]; then
+        emptyFileList=$(find ${errorFolder} -size 0 -name "*${keyword}*" -type f);
+    else
+        emptyFileList=$(find ${checkingDirectory} -size 0 -name "*${keyword}*" -type f);
+    fi
+fi
+
+if [[ "" == ${emptyFileList} ]]; then
+    total=0;
+else
+    total=$(echo ${emptyFileList} | sed -e "s/ /\n/g" | wc -l);
+fi
+
+no=0;
+echo "There are ${total} empty file(s) to check in total.";
+
+for emptyFile in ${emptyFileList}
+do
+    no=$(echo "${no}+1" | bc);
+    echo ">>>Checking empty file(${no}/${total}):";
+    echo "${emptyFile}";
+    echo;
+
+    fileName=$(basename ${emptyFile});
+    agrName=$(echo ${fileName} | cut -d\. -f1);
+    oriName=$(echo ${fileName} | cut -d\. -f3-);
+    comsysInstance=$(ls -d /app/sword/schenker/comsys/COM*/agr/${agrName} | cut -d/ -f6);
+    echo ">>>Checking agreement parameters of ${agrName}:";
+    egrep "RemoteHost|User|RemoteFileMask|RemoteDir" /app/sword/schenker/comsys/${comsysInstance}/agr/${agrName}/${agrName}_dump.xml;
+    echo;
+
+    echo ">>>Checking COMSYS main log:";
+    grep ${oriName} /app/sword/schenker/comsys/${comsysInstance}/log/log;
+    echo;
+
+    if ${info_only}; then
+        echo ">>>Checking historical COMSYS main log:";
+        zgrep ${oriName} /app/sword/schenker/comsys/${comsysInstance}/log/log.*;
+        echo;
+    fi
+
+    #check ftp log if remote host is localhost
+    grep '<RemoteHost>localhost</RemoteHost>' /app/sword/schenker/comsys/${comsysInstance}/agr/${agrName}/${agrName}_dump.xml > /dev/null;
+    if [[  $? == 0 ]]; then
+        echo ">>>Checking FTP transfer log(customer upload):";
+        grep ${oriName} /app/sword/shared/ftpserver/log/transfers.log /app/sword/shared/ftpserver/log/transfers-sftp.log /app/sword/shared/ftpserver/log/transfers-6721.log;
+        echo;
+        echo ">>>Checking FTP transfer log(sword download):";
+        grep ${oriName} /app/sword/shared/ftpserver/log/transfers-localhost.log /app/sword/shared/ftpserver/log/transfers-sftp-localhost.log;
+        echo;
+        if ${info_only}; then
+            echo ">>>Checking historical FTP transfer log(customer upload):";
+            zgrep ${oriName} /app/sword/shared/ftpserver/log/transfers.log*gz /app/sword/shared/ftpserver/log/transfers-sftp.log*gz /app/sword/shared/ftpserver/log/transfers-6721.log*gz;
+            echo;
+            echo ">>>Checking historical FTP transfer log(sword download):";
+            grep ${oriName} /app/sword/shared/ftpserver/log/transfers-localhost.log*gz /app/sword/shared/ftpserver/log/transfers-sftp-localhost.log*gz;
+            echo;
+        fi
+    fi
+
+    if ! ${info_only}; then
+        echo ">>>Housekeeping the empty file:";
+        housekeepingFolder="/app/sword/schenker/support/${comsysInstance}/${agrName}";
+        mkdir -p ${housekeepingFolder};
+        mv -v ${emptyFile} ${housekeepingFolder};
+        echo;
+    fi
+done
