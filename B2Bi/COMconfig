@@ -21,7 +21,8 @@ COMS1_L1
 COMS1_L2
 COMS1_L3
 COMS2_01
-COMS2_02
+COMS2_L1
+COMSL_99
 
 [comsys@b2biprdcom1:/app/sword/schenker/support/luis/config]$ cat tmp 
 COMS1_01:01
@@ -36,3 +37,4 @@ COMS1_L2:l2
 COMS1_L3:l3
 COMS2_01:21
 COMS2_L1:2l
+COMSL_99:99
