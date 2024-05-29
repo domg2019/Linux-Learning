@@ -1,0 +1,38 @@
+[comsys@b2biprdcom1:/app/sword/schenker/support/luis/config]$ l
+total 12
+drwxrwxr-x 2 comsys b2bi  57 May 29 16:24 .
+drwxrwxr-x 8 comsys b2bi 113 May 29 15:34 ..
+-rw-rw-r-- 1 comsys b2bi  45 May 29 16:11 t1config.txt
+-rw-rw-r-- 1 comsys b2bi  63 May 29 16:12 t2config.txt
+-rw-rw-r-- 1 comsys b2bi 144 May 29 16:24 tmp
+
+
+[comsys@b2biprdcom1:/app/sword/schenker/support/luis/config]$ cat t1config.txt
+COMS1_01
+COMS1_03
+COMS1_04
+COMS1_05
+COMS1_06
+
+[comsys@b2biprdcom1:/app/sword/schenker/support/luis/config]$ cat t2config.txt 
+COMS1_02
+COMS1_07
+COMS1_L1
+COMS1_L2
+COMS1_L3
+COMS2_01
+COMS2_02
+
+[comsys@b2biprdcom1:/app/sword/schenker/support/luis/config]$ cat tmp 
+COMS1_01:01
+COMS1_02:02
+COMS1_03:03
+COMS1_04:04
+COMS1_05:05
+COMS1_06:06
+COMS1_07:07
+COMS1_L1:l1
+COMS1_L2:l2
+COMS1_L3:l3
+COMS2_01:21
+COMS2_L1:2l
