@@ -183,6 +183,8 @@ function Ftp_download_pendingfile_handling ()
 
 if [ "$BOUND" == "inbound" ];then Inbound_pendingfile_handling $1;
 elif [ "$BOUND" == "outbound" ];then Outbound_pendingfile_handling $1;
-else file_dir=`find /app/sword/shared/ftpserver/customer/ -maxdepth 3 -type f -name "$1*" 2>/dev/null|head -1`
+# update the find dir depth, remove the -maxdepth 3
+#else file_dir=`find /app/sword/shared/ftpserver/customer/ -maxdepth 3 -type f -name "$1*" 2>/dev/null|head -1`
+else file_dir=`find /app/sword/shared/ftpserver/customer/ -type f -name "$1*" 2>/dev/null|head -1`
     Ftp_download_pendingfile_handling
 fi
