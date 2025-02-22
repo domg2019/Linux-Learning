@@ -7,6 +7,8 @@
 #Update:  2023.05.20    Update the filename fetch logic -> agreement.count
 #################################################################################
 
+#create log file
+echo -e User: `who am i|cut -c 1-8` Input Value:$* '\t' Current Time: `date`  >> /app/sword/schenker/support/luis/log/hk_outbound.log
 
 #script works only when luis login
 user=`who|sed -n '/luisliu1/p'|awk '{print $1}'|uniq`
@@ -14,6 +16,10 @@ user=`who|sed -n '/luisliu1/p'|awk '{print $1}'|uniq`
 
 #exist if no input
 [ "$1" == "" ] && echo -e "Usage: ./hk.outbound.sh {whole file name}" && exit
+
+# add one judgement: only hk one file per time.
+[[ `ls /app/sword/schenker/comsys/COMS*/agr/*outbound/imp/$1* | wc -l|bc` -gt 1 ]]  && echo -e "Kindly input one file per time." && exit
+
 
 #make the imptmp default no pending file
 #create directory variables per input filename and check if input file name is correct.
@@ -29,7 +35,6 @@ impwork_value=`ls /app/sword/schenker/comsys/COMS*/impwork/$filename* 2>/dev/nul
 #housekeeping the file per different situations
 agreement=`echo $1|cut -d. -f1`
 sup_dir=/app/sword/schenker/support
-
 
 if [ $imp_value -eq 0 ];then
 #this means only impwork need to housekeeping

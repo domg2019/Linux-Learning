@@ -1,0 +1,7 @@
+import requests
+
+# url="https://www.baidu.com"
+url="https://schenkeritsmprod.service-now.com/nav_to.do?uri=%2Fincident_list.do%3Fsysparm_clear_stack%3Dtrue%26sysparm_query%3Dactive%253Dtrue%255Eassigned_toISEMPTY%255Eassignment_group%253D72a692a3dbfdb2401529f3571d96191d%255EORassignment_group%253Dcee88b9cdb781344eafffd651d961913%255EORassignment_group%253D8a127011db2a76001529f3571d961956%255EORassignment_group%253D2f3642361b383410ad1499339b4bcb12%255EORassignment_group%253D46b6c9091b2ee8104b6087306b4bcb7b%26sysparm_fixed_query%3D"
+
+resp=requests.get(url)
+print(resp.status_code)

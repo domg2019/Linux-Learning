@@ -1,0 +1,3 @@
+Critical Usage Alert beep:
+
+while (true); do df -h /app/xib/dynamic; check=$(df -h /app/xib/dynamic | sed -n 2p | awk '{print $5}' | awk -F% '{print $1}' | bc);if [[ "$check" -ge "75" ]];then while (true); do echo -en '\a';sleep 1;done;fi;sleep 300;done

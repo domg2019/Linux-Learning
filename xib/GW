@@ -3,7 +3,7 @@
 # Function: 'clean_up2 -v' files in the err folder. Then do ll to list files left. '-b' means to 'beep' if files left
 #
 # 06.07.2019	---- add list2 fileagemin=30, ftp check
-# 05.30.2019    ---- First version
+# 05.30.2019	---- First version. Directly clean_up2,beep
 ##################################################################################################################
 
 #!/bin/bash
@@ -32,9 +32,11 @@ if [[ ${ListValue} == true ]];then
 }
 
 function CheckFTP()
-{
+{	
+	
 	if [[ ${FtpValue} == true ]];then
-		ssh -o StrictHostKeyChecking=no amtrix@xibftprd1.dc.signintra.com "/app/xib/ext/support/luis/ftp";
+		echo -e "FTP Sever Checking:";
+		ssh -o StrictHostKeyChecking=no amtrix@xibftprd1.dc.signintra.com "/app/xib/ext/support/luis/gwftp";
 	fi	
 }
 

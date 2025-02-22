@@ -1,0 +1,11 @@
+#!/bin/bash
+
+##########################################################################################################
+# This script aims to copy files from 3D for directory: /app/sword/schenker/support/luis
+# Kindly contact luis.liu@dbschenker.com if you have any concerns
+#
+#       1/23/2023      -Luis              Script Created
+##########################################################################################################
+
+[[ $1 == "" ]] && echo -e "Kindly input the transfer filename!" && exit
+scp luisliu1@b2bimcpapp4.sl3.comp.db.de:/app/sword/schenker/support/luis/$1 .

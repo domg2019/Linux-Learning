@@ -28,6 +28,7 @@ ls -lt | grep -v 'total';
 				do echo -en "\a";
 				usleep 500000; 
 			done; 
+			echo;
 			echo -e ">>>Check if these files are resent or not:"
 			for check in $(ls -1 $ERRORFOLDER);
 				do 	Count=$(find $CHECKFOLDER -type f -name "$check"  | wc -l| bc)

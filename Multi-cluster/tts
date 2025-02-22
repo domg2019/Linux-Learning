@@ -1,0 +1,41 @@
+#!/bin/bash
+
+##########################################################################################################
+# This script aims to check which node for the oldest message in error for one list
+# Kindly contact luis.liu@dbschenker.com if you have any concerns
+#
+#       1/23/2023      -Luis              Script Created
+##########################################################################################################
+
+ERR="/app/sword/schenker/data/error"
+MassFilter_PIDs=`ls ${ERR}/MassFilter* 2>/dev/null|cut -d. -f1-2| cut -d"/" -f7|sort | uniq`
+for pid in $MassFilter_PIDs;
+do
+  echo -en "$pid\t\t";
+oldest_att_file=`ls -tr ${ERR}/${pid}*att 2>/dev/null |grep -v "^total"| head -1`
+# node should be same between TRID and BDID. So directly check TRID.
+  grep "BDIDRefValues" "$oldest_att_file" &>/dev/null
+    if [[ `echo $?` == 0 ]];
+      then grep -A1 "BDIDPositions_IN" "$oldest_att_file"|sed -n "2p"|cut -d"\"" -f2|cut -c 1,2;
+    else
+      grep -A 1 "TRID" "$oldest_att_file"|sed -n "2p"|cut -c 1,2
+    fi
+done
+
+PIDs=`ls ${ERR} | grep -v "MassFilter" | grep -v "SYSTXERROR" | cut -d. -f1| sort | uniq`
+for pid in $PIDs;
+do
+  echo -en "$pid\t\t";
+oldest_att_file=`ls -tr ${ERR}/${pid}*att 2>/dev/null |grep -v "^total"| head -1`
+# node should be same between TRID and BDID. So directly check TRID.
+  grep "BDIDRefValues" "$oldest_att_file" &>/dev/null
+    if [[ `echo $?` == 0 ]];
+      then grep -A1 "BDIDPositions_IN" "$oldest_att_file"|sed -n "2p"|cut -d"\"" -f2|cut -c 1,2;
+    else
+      grep -A 1 "TRID" "$oldest_att_file"|sed -n "2p"|cut -c 1,2
+    fi
+done
+
+
+
+

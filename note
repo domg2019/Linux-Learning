@@ -1,0 +1,70 @@
+kill 13576
+xib@sword-186d:/ext/schenker/support/luis $ ps -ef | grep 13577
+     xib 13577 16799   0 17:24:27 ?           0:03 -bash
+     xib 14452 13577   0 20:56:07 ?           0:00 sleep 30
+     xib 23528  3520   0 20:56:27 pts/1       0:00 grep 13577
+
+
+
+xib@sword-186d:/ext/schenker/support/luis $ nohup `while true; do ls -lt | wc -l >> tmp1.txt;done` &
+[1] 8436
+
+xib@sword-186d:~ $ ps -ef | grep 8437;date
+     xib 26385  3520   0 20:54:25 pts/1       0:00 grep 8437
+     xib  8437 16799   2 17:34:07 ?         184:18 -bash
+Sat Jul 27 20:54:24 MEST 2019
+
+
+No more exist.
+xib@sword-186d:/ext/schenker/support/luis $ while (true);do cat > tmp1.txt; sleep 3600;done &
+[1] 20138 
+
+
+xib@sword-186d:/ext/schenker/support/luis $ while (true);do rm tmp1.txt;sleep 3600;done &
+[1] 27571
+xib@sword-186d:/ext/schenker/support/luis $ date
+Sat Jul 27 20:14:01 MEST 2019
+
+xib@sword-186d:/ext/schenker/support/luis $ ps -ef | grep 27571
+     xib 27571 24212   0 20:13:44 pts/14      0:00 -bash
+     xib 12566 24212   0 20:14:17 pts/14      0:00 grep 27571
+     xib 27579 27571   0 20:13:44 pts/14      0:00 sleep 3600
+
+	 
+	 
+
+xib@sword-186d:/ext/schenker/support/luis $ ps -ef | grep 20138
+     xib 20138 18190   0 18:23:53 pts/14      0:00 -bash
+     xib 20145 20138   0 18:23:53 pts/14      0:00 cat
+     xib 11907 18190   0 18:24:36 pts/14      0:00 ggrep --color=auto 20138
+
+xib@sword-186d:/ext/schenker/support/luis $ ps -ef | grep 20138
+     xib 20138 18190   0 18:23:53 pts/14      0:00 -bash
+     xib 20145 20138   0 18:23:53 pts/14      0:00 cat
+     xib 29988 18190   0 18:29:33 pts/14      0:00 ggrep --color=auto 20138
+
+	 
+xib@sword-186d:/ext/schenker/support/luis $ ps -ef | fgrep 13576
+     xib 13576 16799   0 17:24:27 ?           0:00 -bash
+     xib 13577 13576   0 17:24:27 ?           0:02 -bash
+     xib 23526  3905   0 19:29:36 pts/14      0:00 fgrep 13576
+xib@sword-186d:/ext/schenker/support/luis $ kill -9 13576
+	
+	
+	 
+
+  203  watch
+  204  jobs -l
+  205  kill 525
+  206  jobls -l
+  207  cat test.txt
+
+  
+  
+   PID USERNAME LWP PRI NICE  SIZE   RES STATE    TIME    CPU COMMAND
+  8437 xib        1  28    0 6408K 4592K sleep   28:41  1.43% bash
+
+  
+  [xib@sword-186d:/ext/schenker/support/luis]$ sohup `while (true);do ls -lt | wc -l;sleep 600;done`
+
+  

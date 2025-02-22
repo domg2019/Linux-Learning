@@ -1,9 +1,16 @@
 #!/bin/bash
 
+#supportFolder="/app/sword/schenker/support"
+#errorFodler="/app/sword/schenker/data/error"
+#luis_folder_dir="/app/sword/schenker/support/luis"
+
 houseKeepPath='/app/sword/schenker/support/luis/hkpath'
 luis_error_folder="/app/sword/schenker/support/luis/error"
 luis_folder_dir="/app/sword/schenker/support/luis"
 current_date=`date "+%Y%m%d"`
+
+# remove old folders more than 7 days
+[[ `find ${luis_folder_dir}/ -maxdepth=1 -mtime +15 -type d -name "202*" | wc -l | bc` -gt 0 ]] && echo "Please leave a message to Luis to clean cache" && exit 10
 # create folder for current shift per the date your shift starts. Not for US shift as it crosses two dates
 if [ ! -d ${luis_folder_dir}/${current_date} ]; then mkdir -p ${luis_folder_dir}/${current_date};fi
 
@@ -186,18 +193,26 @@ SYSTXERROR_count=`ls ${luis_error_folder}/SYSTXERROR*att 2>/dev/null | wc -l|bc`
 [[ ${SYSTXERROR_count} -gt 0 ]] && [[ ! -d  ${luis_folder_dir}/${current_date}/SYSTXERROR ]] && mkdir -p ${luis_folder_dir}/${current_date}/SYSTXERROR
 if [ ${SYSTXERROR_count} -gt 0 ];
 then  SYSTXERROR_refs=$(for i in `ls ${luis_error_folder}/SYSTXERROR*att 2>/dev/null`;do grep -A 1 "^TransactionAttribute" $i | sed -n 2p | cut -d, -f21 | cut -d"\"" -f2;done |sort | uniq)
-      echo -e "~~~~~~~~~~~~~~~~~~~";echo ${SYSTXERROR_refs}
+#      echo -e "~~~~~~~~~~~~~~~~~~~";echo ${SYSTXERROR_refs}
       for SYSTXERROR_ref in ${SYSTXERROR_refs};
       do SYSTXERROR_pid=`echo -e ${SYSTXERROR_ref}|sed -e s/"\W"//g`;
       if [ `ls -d  ${luis_folder_dir}/${current_date}/SYSTXERROR/${SYSTXERROR_pid} 2>/dev/null |wc -l|bc` -eq 0 ];
-      then touch ${luis_folder_dir}/${current_date}/SYSTXERROR/${SYSTXERROR_pid}.txt
+      then cat >> ${luis_folder_dir}/${current_date}/SYSTXERROR/${SYSTXERROR_pid}.txt << EOF
+Dear Team,
+Kindly route TO:SWORD:AO:
+
+EOF
       SYSTXERROR_files=`grep -wol "${SYSTXERROR_ref}" SYSTXERROR*att 2>/dev/null |cut -d. -f1-4`
       for SYSTXERROR_file in ${SYSTXERROR_files};
       do  /bin/mv ${SYSTXERROR_file}.* ${luis_folder_dir}/${current_date}/SYSTXERROR/
       done
       cd ${luis_folder_dir}/${current_date}/SYSTXERROR/;
       test_hk SYSTXERROR | tee -a ${luis_folder_dir}/${current_date}/SYSTXERROR/${SYSTXERROR_pid}.txt
+      cat  ${luis_folder_dir}/email_signature >> ${luis_folder_dir}/${current_date}/SYSTXERROR/${SYSTXERROR_pid}.txt
       cd ${luis_error_folder}
+#        /bin/mail -s PME_${single_pid} support.sword-csd@dbschenker.com < ${luis_folder_dir}/${current_date}/${single_pid}/${single_pid}.txt
+#        /bin/mail -s PME_${single_pid} luis.liu@dbschenker.com < ${luis_folder_dir}/${current_date}/${single_pid}/${single_pid}.txt
+      echo -e ""
       else
       SYSTXERROR_files=`grep -wol "${SYSTXERROR_ref}" SYSTXERROR*att 2>/dev/null |cut -d. -f1-4`
       for SYSTXERROR_file in ${SYSTXERROR_files};
@@ -205,6 +220,7 @@ then  SYSTXERROR_refs=$(for i in `ls ${luis_error_folder}/SYSTXERROR*att 2>/dev/
       done
       cd ${luis_folder_dir}/${current_date}/SYSTXERROR/;
       test_hk SYSTXERROR | tee -a ${luis_folder_dir}/${current_date}/SYSTXERROR/${SYSTXERROR_pid}.txt
+      echo -e ""
       cd ${luis_error_folder}
       fi
       done
@@ -242,9 +258,9 @@ for error_pid in `ls ${luis_folder_dir}/${current_date}/`;
      echo -e "${error_pid} \t\t ${error_hk_times}"
      elif [ ${error_pid} == "SYSTXERROR" ];
      then
-      echo -e "Below calculation is for SYSTXERROR:"
+      echo -e "";echo -e "Below calculation is for \033[42;37mSYSTXERROR\033[0m:"
       for SYSTXERROR_att in `ls ${luis_folder_dir}/${current_date}/SYSTXERROR/| cut -d. -f1`;
-      do error_hk_times=`grep "housekeeping" ${luis_folder_dir}/${current_date}/SYSTXERROR/*.txt | wc -l|bc`
+      do error_hk_times=`grep "housekeeping" ${luis_folder_dir}/${current_date}/SYSTXERROR/${SYSTXERROR_att}.txt | wc -l|bc`
       echo -e "${SYSTXERROR_att} \t\t ${error_hk_times}"
       done
      fi

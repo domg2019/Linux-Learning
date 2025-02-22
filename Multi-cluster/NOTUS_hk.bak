@@ -1,0 +1,67 @@
+#!/bin/bash
+ m1=`date | awk '{print $2}'`
+ yy=`date | awk '{print $6}'`
+ t1=`date | awk '{print $4}' | awk -F':' '{print $1 $2 $3}'`
+ t2=`echo $RANDOM$t1`
+
+ echo $m1
+ case $m1 in
+ Jan) m2=01
+ ;;
+ Feb) m2=02
+ ;;
+ Mar) m2=03
+ ;;
+ Apr) m2=04
+ ;;
+ May) m2=05
+ ;;
+ Jun) m2=06
+ ;;
+ Jul) m2=07
+ ;;
+ Aug) m2=08
+ ;;
+ Sep) m2=09
+ ;;
+ Oct) m2=10
+ ;;
+ Nov) m2=11
+ ;;
+ Dec) m2=12
+ ;;
+ esac
+
+ mt=`echo /app/sword/schenker/support/error/$yy/$m2`
+ echo "Destination Folder is " $mt
+
+ if [ ! -n "$1" ]
+then
+        echo -e "\n No Process ID input , House Keeping all files in ERROR folder ... \n"
+                ls -atl /app/sword/schenker/data/error/* | grep -v MassFilter | tee /app/sword/schenker/support/leo/hk_records/$t2.txt
+                echo -e "\n Are you pretty sure to HK above files ?  (Hit ENTER to continue, Ctl + C to exit ... ) \n"
+                read ANS
+                echo $ANS
+                if [ ! -n "$ANS" ]
+                then
+                        for i in `more /app/sword/schenker/support/leo/hk_records/$t2.txt | awk '{print $9}' | awk -F"/" '{print $7}'`
+                        do
+                                        echo "Moving /app/sword/schenker/data/error/"$i "--------> "$mt"/"$i ;
+                                        mv /app/sword/schenker/data/error/$i $mt/$i
+                        done
+                else
+                        echo "Script exit"
+                        exit
+                fi
+
+else
+        for i in `ls -atl /app/sword/schenker/data/error/*$1* | grep -v MassFilter | awk '{print $9}' | awk -F"/" '{print $7}'`
+        do
+                echo "Moving /app/sword/schenker/data/error/"$i "--------> "$mt"/"$i ;
+                mv /app/sword/schenker/data/error/$i $mt/$i
+
+        done
+fi
+echo -e "\n"
+
+date

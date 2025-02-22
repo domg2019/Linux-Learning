@@ -1,33 +1,363 @@
-##################################################################################
-#. alias_B2Bi  load on tasks such as: alias(personal),other useful functions
+#####################################################################################
+# .aobashrc
+# AO Environment for bash on B2Bi Linux
+# ported by Lars Herrlein (lars.herrlein@dbschenker.com) from .aobashrc which enabled the AO Environment on XIB / Solaris
 #
-#
-#HISTORY:
-#       TO do              
-#	11.11.2019  -Luis  -Add function beep, cer, getbdid,corelog
-#       06.18.2019 - Luis  - Add usage how to use the monitor
-#       06.14.2019 - Lars  - Changed the .bashrc back normal and now runmass works well
-#   05.31.2019 - Allen - Added from xib alias, firstly 5 functions added
-#                                                           ref,hk,checkError,monitor,runmass
-##################################################################################
+# last changes
+#               01.06.2021      lh added        cdarch - change into archive directory of given process
+#               29.04.2019      lh ported       first version for B2Bi communication server
+#####################################################################################
 
-#alias
-alias ..='cd ..';
-alias ...='cd ../..';
-alias cp='cp -i';
-alias mv='mv -i';
-alias rm='rm -i';
-alias frm='/usr/bin/rm';
-alias new='ls -lt | grep -v "^total" | head';
-alias old='ls -ltr | grep -v "^total" | head';
-alias luis='cd /app/sword/schenker/support/luis';
-alias tll='cd /app/sword/schenker/toolslocal';
-alias tlls='cd /app/sword/schenker/toolslocal/support/';
+#enable direxpansion
+shopt -s direxpand
+
+#modified prompt to indicate that .aobashrc was read and AO environment is active
+PS1="[\u@\h:\w]\$ " #verified
+PS2="\u@\h:\w\$ "   #verified
+
+#environment variables
+export tll="/app/sword/schenker/toolslocal"
+export tlls="/app/sword/schenker/toolslocal/support"
+export sup="/app/sword/schenker/support"
+export err="/app/sword/schenker/data/error"
+export ERR="/app/sword/schenker/data/error"
+export COMSYSBASEDIR="/app/sword/schenker/comsys"
+export ars='/app/sword/schenker/archive/'
+
+TMPPATH=`echo  $PATH| sed 's#:.:/app/sword/schenker/toolslocal/support##g'`
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/bin:/sbin:/bin:/usr/sbin:$TMPPATH:.:$tlls
+
+#export PATH=/usr/local/sbin:/usr/local/bin:/usr/bin:/sbin:/bin:/usr/sbin:/app/sword/axway/Integrator/local/bin:/app/sword/axway/Integrator/bin:/app/sword/axway/Integrator/local/4edi/load:/app/sword/axway/Integrator/4edi/load:/app/sword/axway/Integrator/local/load:/app/sword/axway/Integrator/load:/app/sword/axway/Integrator/local/java/load:/app/sword/axway/Integrator/java/load:/app/sword/axway/jre/bin:/app/sword/schenker/oracle/instantclient_12_1/:/app/sword/axway/Integrator/solutions/bin:/app/sword/schenker/framework:/ext/schenker/toolslocal/support:.:/home/b2bi/.local:.:/app/sword/schenker/toolslocal/support
+
+
+#use vim instead of vi -> .vimrc is used instead of .virc
+export EDITOR='/bin/vim -u ~/.aovimrc'
+
+#fixes wrong output of some commands (e.g. mv -v) under UTF8 environment.
+export LANG=
+
+#aliases
+alias agr1='cd /app/sword/schenker/comsys/COMSYS01/agr'                         #verified
+alias agr2='cd /app/sword/schenker/comsys/COMSYS02/agr'                         #verified
+alias agr3='cd /app/sword/schenker/comsys/COMSYS03/agr'                         #verified
+alias agr4='cd /app/sword/schenker/comsys/COMSYS04/agr'                         #verified
+
+alias ard1='cd /app/sword/schenker/comsys/COMSYS01/archive/scheduler'           #verified
+alias ard2='cd /app/sword/schenker/comsys/COMSYS02/archive/scheduler'           #verified
+alias ard3='cd /app/sword/schenker/comsys/COMSYS03/archive/scheduler'           #verified
+alias ard4='cd /app/sword/schenker/comsys/COMSYS04/archive/scheduler'           #verified
+
+alias com1='cd /app/sword/schenker/comsys/COMSYS01'                             #verified
+alias com2='cd /app/sword/schenker/comsys/COMSYS02'                             #verified
+alias com3='cd /app/sword/schenker/comsys/COMSYS03'                             #verified
+alias com4='cd /app/sword/schenker/comsys/COMSYS04'                             #verified
+
+alias csl1='cd /app/sword/schenker/comsys/COMSYS01/log'                         #verified
+alias csl2='cd /app/sword/schenker/comsys/COMSYS02/log'                         #verified
+alias csl3='cd /app/sword/schenker/comsys/COMSYS03/log'                         #verified
+alias csl4='cd /app/sword/schenker/comsys/COMSYS04/log'                         #verified
+
+alias cdtracelogs="cd /app/sword/axway/Integrator/data/trace/8/"
+
+alias ...='cd ../..'                                                            #verified
+alias ..='cd ..'                                                                #verified
+alias c='clear;pwd'                                                             #verified
+alias cdt='cd /app/sword/schenker/data/testfiles'                               #verified
+alias cerl='/app/sword/schenker/toolslocal/support/clean_up -v && err && ls -ltr  --color=auto' #verified
+alias cfg='cd /app/sword/schenker/config'                                       #verified
+alias cp='cp -i'                                                                #verified
+alias cus='cd /app/sword/shared/ftpserver/customer'                             #verified
+alias dat='cd /app/sword/schenker/data'                                         #verified
+alias erl='err; ls -ltr --color=auto'                                           #verified
+alias err='cd /app/sword/schenker/data/error'                                   #verified
+alias frm='/usr/bin/rm'                                                         #verified
+alias gegrep='egrep --color=auto'                                               #verified
+alias gfgrep='fgrep --color=auto'                                               #verified
+alias gfind='find'                                                              #verified
+alias ggrep='grep --color=auto'                                                 #verified
+alias grep='grep --color=auto'                                                  #verified
+alias gsed='sed'                                                                #verified
+alias l='ls -la --color=auto'                                                   #verified
+alias lt='ls -lt'                                                               #verified
+alias la='ls -al --color=auto | more'                                           #verified
+alias lars='ls -larS --color=auto'                                              #verified
+alias lf='ls -1atr| tail -1'                                                    #verified
+alias lfl='ls -latr| tail -1'                                                   #verified
+alias lg='grep --color=auto'                                                    #verified
+alias list2='/app/sword/schenker/toolslocal/support/list2'                      #verified
+alias ll='ls -la --color=auto'                                                  #verified
+alias llf='less `ls -1atr | tail -1`'                                           #verified
+alias llist='/app/sword/schenker/toolslocal/support/list2 | less'               #verified
+alias lm='ls -l --color=auto |more'                                             #verified
+alias ltm='ls -lt --color=auto | more'                                          #verified
+alias ltr='ls -latr --color=auto'                                               #verified
+alias luis='cd /app/sword/schenker/support/luis'                                #verified
+alias lust='echo "executing list instead. Please stand by...." && sleep 3 && list'
+#alias mv='mv -i'                                                                #verified
+alias new='ls -lt | grep -v "^total" | head'                                    #verified
+alias old='ls -ltr | grep -v "^total" | head'                                   #verified
+alias omv='mv -v'                                                               #verified
+alias psw='ps'                                                                  #verified
+#alias rm='rm -i'                                                                #verified
+alias sup='cd /app/sword/schenker/support'                                      #verified
+alias tll='cd /app/sword/schenker/toolslocal'                                   #verified
+alias tll='cd /app/sword/schenker/toolslocal'                                   #verified
+alias tlls='cd /app/sword/schenker/toolslocal/support/'                         #verified
+alias tmp='cd /app/sword/schenker/tmp'                                          #verified
+alias tpm='echo "Passport migrated to B2Bi Web UI"'                             #verified
+alias vi='/bin/vim -u ~/.aovimrc'                                               #verified
+alias m5='monitor 5'
+
+#not on b2bi com server
+alias cdtracelogs='cd /app/sword/axway/Integrator/data/trace/8/'
+#alias cl='cd /ext/axway/Integrator/local'
+#alias cpt='cd /ext/shared/axway/local/4edi/component'
+#alias cr='cd /ext/axway/Integrator'
+#alias inc='cd /ext/shared/axway/local/4edi/include'
+#alias pgm='cd /ext/shared/axway/local/4edi/pgm'
+#alias ptk='cd /app/sword/schenker/prot'
+#to do:
+#alias scp='LD_LIBRARY_PATH="" scp'
+#alias sftp='LD_LIBRARY_PATH="" sftp'
+#alias ssh='LD_LIBRARY_PATH="" ssh'
+#alias xsl="cd /app/sword/schenker/toolslocal/corporate/xslt"
+#alias zcat='zgrep -e ".*"'                                                     #obsolete
+
 
 #values
-errorFoler="/app/sword/schenker/data/error";
+errorFolder="/app/sword/schenker/data/error";
 supportFolder="/app/sword/schenker/support";
 houseKeepPath=${supportFolder}/error/$(date "+%Y/%m/");
+
+agrgrep ()
+{
+    [ "$1" == "" ] && echo "agrgrep - searches PATTERN in ALL agreements" && echo "SYNTAX:       agrgrep <PATTERN>" && return 1;
+    find $COMSYSBASEDIR/COMSYS*/agr -maxdepth 2 -iname \*.xml -exec grep -H -i "$1" {} \;
+}
+agrgrep2 ()
+{
+    [ "$1" == "" ] && echo "agrgrep2 - searches for PATTERN in agreements that contain CONDITION" && echo "SYNTAX:       agrgrep2 <PATTERN> <condition>" && return 1;
+    [ "$2" == "" ] && echo "agrgrep2 - searches for PATTERN in agreements that contain CONDITION" && echo "SYNTAX:       agrgrep2 <PATTERN> <condition>" && return 1;
+    for agreementname in $(find $COMSYSBASEDIR/COMSYS\*/agr/ -maxdepth 2 -iname \*.xml -exec grep -l $2 {} \; );
+    do
+        grep -H $1 $agreementname;
+    done
+}
+
+#change into archive directory of given process
+cdarch () {
+        processid="$1"
+        [ -z "$processid" ] && echo "SYNTAX cdarch <processid> [SUBDIR]" && return 1
+
+        #company name
+        part1=`echo $1 | sed 's#\(^....\).*#\1#'`
+        #remaining part of the process name
+        part2=`echo $1 | sed 's#\(^....\)\(......\)$#\2#'`
+        #sub directory under the process' root directory (optional)
+        SUBDIR="$2"
+
+        #file that contains all archive directories
+        dirlookupfile='/mnt/archive/appsrv1/lh_archivedirslookupfile'
+
+        if [ -z "$SUBDIR" ]
+        then
+                #echo "Subdir is empty, no. of found dirs: $(grep $part1/$part2 $dirlookupfile | cut -d/ -f2-4 | sed 's#^#/#' | uniq  | wc -l | sed 's# .*##')"
+                if [ "$(grep $part1/$part2 $dirlookupfile | cut -d/ -f2-4 | sed 's#^#/#' | uniq  | wc -l | sed 's# .*##')" -gt "1" ]
+                then
+                        echo "more than one archive was found for process $1, please use one of the below"
+                        #it's up to the user to select the archive path
+                        grep "$part1/$part2" "$dirlookupfile"  | cut -d/ -f2-6 | sed 's#^#/#' | uniq
+                        return 2
+                else
+                        cd $(grep $part1/$part2 $dirlookupfile | cut -d/ -f2-6 | sed 's#^#/#' )
+                fi
+        else
+                if [ "$(grep "$part1/$part2/$SUBDIR" "$dirlookupfile" | cut -d/ -f2-7 | sed 's#^#/#' | uniq | wc -l | sed 's# .*##')" -gt "1" ]
+                then
+                        echo "more than one archive was found for process $1/$2, please use one of the below"
+                        #it's up to the user to select the archive path
+                        grep "$part1/$part2/$2" "$dirlookupfile"  | cut -d/ -f2-7 | sed 's#^#/#' |uniq
+                        return 3
+                else    #now it's safe to simply go into the directory
+                        cd $(grep "$part1/$part2/$SUBDIR" "$dirlookupfile")
+                fi
+        fi
+}
+
+#change into agreements base directory
+cdagr () {
+        [ "$1" == "" ] && echo "Syntax:" && echo "cdagr <agreement_name>" && return 1
+        #ignore errors, just don't cd
+        cd /app/sword/schenker/comsys/COMSYS*/agr/$1 2>/dev/null
+}
+
+#change into prot directory of agreement
+cdagrprot () {
+        [ "$1" == "" ] && echo "Syntax:" && echo "cdagr <agreement_name>" && return 1
+        #ignore errors, just don't cd
+        cd /app/sword/schenker/comsys/COMSYS*/agr/$1/prot/ 2>/dev/null
+}
+
+
+#Display strings in binary files (e.g. exception_error from ComSys)
+sl () {
+        strings $1 | less
+}
+
+#there will not be any separate ftp server in B2Bi anymore
+#to do: check if this is still needed
+#if [ `hostname` == "sword-154d" ] || [ `hostname` == "sword-164d" ]
+#then
+# todo:
+#        alias list2="/opt/amtcftp/tools/support/bin/list2"
+#        alias llist='/opt/amtcftp/tools/support/bin/list2 | less'
+#        alias proftpd="cd /app/sword/schenker/prot/proftpd/"
+#        alias cdsftplog='cd /app/sftplog'
+#        alias cdoldlogs='cd /progs/adm_sav'
+#        alias cdlogs='cd /app/sword/schenker/prot'
+#        alias cdproftpd='cd /app/sword/schenker/prot/proftpd/'
+#        alias cerl='/opt/amtcftp/tools/support/bin/clean_up2 -v && err && ls -ltr --color=auto'
+#       echo
+#else
+#        alias list2="/app/sword/schenker/toolslocal/support/list2"
+#        alias llist='/app/sword/schenker/toolslocal/support/list2 | less'
+#        alias cerl='/app/sword/schenker/toolslocal/support/clean_up2 -v && err && ls -ltr --color=auto'
+#        alias cdxfblogs='cd /app/sword/schenker/logarchive/xfb_logs/'
+#        alias cdtracelogs='cd /app/sword/axway/Integrator/data/trace/8/'
+#fi
+
+
+grepxml16 ()
+{
+    [ "$2" == "" ] && echo "SYNTAX grepxml16 $1 $2" && return 1;
+    [ "$1" == "" ] && echo "SYNTAX grepxml16 $1 $2" && return 2;
+    iconv -f UTF-16 -t UTF-8 $2 | sed -e 's#> <#>\n<#g' -e 's#><#>\n<#g' | grep $1
+}
+
+
+
+#*sigh* tree command is not installed on Linux machines, so we still need to emulate this with the below code.
+tree ()
+{
+        find $1 -type d -print 2>&1 | sort -f | grep -v "Permission denied" | sed -e 's;[^/]*/;|____;g;s;____|; |;g'
+}
+
+#less for EDIFACT messages
+eless () {
+    [ "$1" == "" ] && echo "less for EDIFACT messages" && echo  "Syntax:" && echo "eless <file>" && return 1
+    sed "s#'#\n#g" $1 | less
+}
+
+#less for EDIFACT messages by removing all line breaks (rmlb) (e.g. for files that are wrapped after 80 chars)
+elessrmlb () {
+    [ "$1" == "" ] && echo "less for EDIFACT messages after removing linebreaks" && echo  "Syntax:" && echo "eless <file>" && return 1
+    echo $(cat $1) | sed "s#'#\n#g" |less
+
+}
+
+#less for attribute files
+aless () {
+    [ "$1" == "" ] && echo "less for attribute files" && echo "Syntax:" && echo "aless <file>" && return 1
+    sed 's#,{#\n\{#g' $1 |less
+}
+
+#cat for EDIFCAT messages (assumption: delimiter is '  )
+ecat () {
+    [ "$1" == "" ] && echo "cat for EDIFCAT messages" && echo "Syntax:" && echo "ecat <file>" && return 1
+    sed "s#'#\n#g" $1
+}
+
+ecatrmlb () {
+    [ "$1" == "" ] && echo "cat for EDIFCAT messages after removing line breaks" && echo "Syntax:" && echo "ecat <file>" && return 1
+    echo $(cat $1) | sed "s#'#\n#g"
+}
+
+
+#less for XML files (added > < pattern)
+xless () {
+    [ "$1" == "" ] && echo"less for XML files" && echo "Syntax:" && echo "xless <file>" && return 1
+    sed -e 's#> <#>\n<#g' -e 's#><#>\n<#g' $1 |less
+}
+
+
+# daic = display agreement in coredump
+daic () {
+    cd $ERR
+    for coredump in `gfind . -iname "core.*"`
+    do
+        pmap $coredump  | grep AgrID | sed -e "s#' .*AgrID=# => #" -e "s# OkDir=.*##" -e "s#.*'##"
+    done
+}
+
+#show BDIDs in current directory (should be one impwork dir) sorted by time ascending = oldest first
+#$1 = directory to list, may be empty (then current directory will be used)
+showiwbdids () {
+        for file in `ls -1tr *\. 2>/dev/null`
+        do
+                echo -n `ls -la $file` && echo -n " ---->  " && echo -n `cat $file`&& echo
+        done
+}
+
+#display size of one logger directory and format it in a readable way
+showloggersize ()
+{
+    pushd /app/sword/shared/axway/data/logger > /dev/null 2>&1;
+    for DIR in `ls -1tr`;
+    do
+        du -hs $DIR;
+    done | awk -F\  '{print $2,$1}' | sed -e 's#^\([0-9][0-9][0-9][0-9]\) # \1 #' -e 's#^\([0-9][0-9][0-9]\) #  \1 #' -e 's# \(...[MG]\)$#  \1#' -e 's# \(..[MG]\)$#   \1#' | sort -k1;
+    popd > /dev/null 2>&1
+    }
+
+#display queue lengths
+showqueuelengths () {
+        for DIR in `gfind /app/sword/axway/Integrator/data/coreservices/queue /app/sword/shared/axway/data/coreservices/queue -maxdepth 1 -type d`
+        do
+                echo -n "$DIR: "; find $DIR -type f | wc -l
+        done
+}
+
+#get list of BDIDs from an ATT file
+#search for the line after BDIDPositions_IN, replace all characters except those that are in a BDID with spaces and trim the output
+bdidgrep () {
+        /usr/sfw/bin/grep -h -A 1 BDIDPositions_IN  $* | /usr/sfw/bin/grep -v BDIDPositions_IN | sed -e 's#[^a-zA-Z0-9_]# #g' -e 's# #\n#g' | /usr/sfw/bin/grep _
+}
+
+#search in $2 files for the TransactionAttribute
+tagrep () {
+        [ "$2" == "" ] && echo "SYNTAX tagrep <Date/Time> <FILEPATTERN>" && return 1
+        for FILE in `ls -lt $2*att | grep "$1" | awk '{print $9}'`
+        do
+                grep -H -A1 TransactionAttribute $FILE;
+        done
+}
+
+#grep $1 pattern in UTF-16 XML files (using iconv to convert them to UTF-8)
+grepxml16 () {
+        [ "$2" == "" ] && echo "SYNTAX grepxml16 $1 $2" && return 1
+        [ "$1" == "" ] && echo "SYNTAX grepxml16 $1 $2" && return 2
+        iconv -f UTF-16 -t UTF-8 $2 | sed -e 's#> <#>\n<#g' -e 's#><#>\n<#g' | grep $1
+}
+
+#expand paths from the cleandir configuration and grep for the first given parameter
+cleandirgrep () {
+        /app/sword/schenker/toolslocal/expandcleandirconfig | grep $1
+}
+
+tless ()
+{
+    sed -e 's#~#\n#g' $1 | less
+}
+
+tcat ()
+{
+    sed -e 's#~#\n#g' $1
+}
+
+#expand paths from the cleandir configuration and grep for the first given parameter
+cleandirgrep () {
+        /app/sword/schenker/toolslocal/support/expandcleandirconfig | grep $1
+}
 
 mkdir -p ${houseKeepPath};
 
@@ -46,20 +376,17 @@ function Beep()
 #               then  if [[ $(ls /app/sword/schenker/support/luis/prod-script | wc -l | bc) != 0 ]];
                                         then for i in $(seq 6);
                                                         do echo -en "\a";
-                                                        usleep 600000;
+                                                        sleep 0.6;
                                                  done;
                           fi
         fi
 }
 
-function getbdid()
-{
-	grep -A 1 BDIDRefValues $1 | sed -n 2p | awk -F\" '{print $2}'
-}
+#TODO getbdid
 
 function ref()
 {
-    for file in $(ls ${errorFoler}/*$1*.att | grep -v "MassFilter")
+    for file in $(ls ${errorFolder}/*$1*.att | grep -v "MassFilter")
     do
         basename ${file};
         transaction=$(grep -A1 -E '^TransactionAttribute$' ${file} | grep -v "^TransactionAttribute$" | head -1);
@@ -79,7 +406,7 @@ function hk()
 {
     if [[ $1 != '' && $(echo $1 | grep -Eo [A-Z_0-9]{10}) == $1 ]]; then
         err;
-        /app/sword/schenker/toolslocal/support/clean_up2;
+        /app/sword/schenker/toolslocal/support/clean_up -v;
         echo;
         processID=$1;
         hkTmpFile="/tmp/hk_${processID}_$(date "+%Y%m%d%H%M%S").tmp";
@@ -117,17 +444,17 @@ function hk()
 
 function checkError()
 {
-    fileCount=$(ls "${errorFoler}" | grep -c "\.att$" | bc);
+    fileCount=$(ls "${errorFolder}" | grep -c "\.att$" | bc);
     [[ "${fileCount}" != "0" ]] && echo -en "\a";
     echo -n "Massfilter : ";
-    ls "${errorFoler}" | fgrep "MassFilter" | grep -c "\.att$";
-    ls "${errorFoler}" | fgrep "MassFilter" | grep "\.att$" | cut -d\. -f2 | sort | uniq -c | while read line
+    ls "${errorFolder}" | fgrep "MassFilter" | grep -c "\.att$";
+    ls "${errorFolder}" | fgrep "MassFilter" | grep "\.att$" | cut -d\. -f2 | sort | uniq -c | while read line
     do
         echo "    ${line}";
     done
     echo -n "Error : ";
-    ls "${errorFoler}" | fgrep -v "MassFilter" | grep -c "\.att$";
-    ls "${errorFoler}" | fgrep -v "MassFilter" | grep "\.att$" | cut -d\. -f1 | sort | uniq -c | while read line
+    ls "${errorFolder}" | fgrep -v "MassFilter" | grep -c "\.att$";
+    ls "${errorFolder}" | fgrep -v "MassFilter" | grep "\.att$" | cut -d\. -f1 | sort | uniq -c | while read line
     do
         echo "    ${line}";
         processID=$(echo "${line}" | awk '{print $2}')
@@ -145,8 +472,10 @@ function monitor()
     command='';
     if [[ "${gap}" == "" ]]; then
         checkError;
+    elif [[ "${gap}" -gt 60 || "${gap}"  -lt 5 ]]
+        then echo -e "Please input the monitor time value between 5-60 (min)"
     else
-        while true
+       for((count=1;count<=$((480/${gap}));count++))
         do
             if [[ "${command}" != "" ]]; then
                 ${command};
@@ -158,53 +487,51 @@ function monitor()
                 date;
                 checkError;
                                 Beep;
-                echo -e "Next check will be executed ${gap} seconds later.\nPress Enter to check again immediately.\nInput any command to run immediately.";
-                read -t "${gap}" command;
+                echo -e "Next check will be executed ${gap} minutes later.\nPress Enter to check again immediately.\nInput any command to run immediately.";
+                read -t "$((${gap}*60))" command;
+                sleep 1;
             fi
         done
     fi
 }
 
-function runmass()
-{
-    . $FRAME_ROOT/framework/LHScriptFunctions;
-    if [[ $1 != '' ]]; then
-        if [[ -e "/tmp/remafi_$1.lck" ]];then
-            echo "Remafi lock for $1(/tmp/remafi_$1.lck) already exist, probably someone is running remafi."
-			  for deviceid in $(who| grep -v "^Login" | awk '{print $2}')
-				do
-                count=$(ps -ef | grep -w ${deviceid} | grep -v "grep" | grep -c "remafi");
-                if [[ ${count} != 0 ]]; then
-                    who | grep -w ${deviceid};
-                    ps -ef | grep -w ${deviceid} | grep -v "grep" | grep "remafi";
+function runmass() {
+        . $FRAME_ROOT/framework/LHScriptFunctions;
+        if [[ $1 != '' ]]; then
+                if [[ -e "/tmp/remafi_$1.lck" ]];then
+                        echo "Remafi lock for $1(/tmp/remafi_$1.lck) already exist, probably someone is running remafi."
+                        for deviceid in $(who| grep -v "^Login" | awk '{print $2}')
+                        do
+                                count=$(ps -ef | grep -w ${deviceid} | grep -v "grep" | grep -c "remafi");
+                                if [[ ${count} != 0 ]]
+                                then
+                                        who | grep -w ${deviceid};
+                                        ps -ef | grep -w ${deviceid} | grep -v "grep" | grep "remafi";
+                                fi
+                        done
+                else
+                        err;
+                        echo -n "MassFilterFileNumber of $1:";
+                        ls -l /app/sword/schenker/data/error | grep "MassFilter" | grep $1 | grep -c ".att$";
+                        ls -l /app/sword/schenker/data/error | grep "MassFilter" | grep $1 | head;
+                        INTEGRATIONTYPE=$(SQLselect INTEGRATIONTYPE XIB_PROCESSIDPROPERTIES PROCESSIDCODE $1 | sed 's#^.* ##');
+                        echo "Integration type : ${INTEGRATIONTYPE}";
+                        if [[ "${INTEGRATIONTYPE}" == "Parallel" ]]
+                        then
+                                echo -e "\n>>>deletemassfilterflag $1";
+                                echo | /app/sword/schenker/toolslocal/support/deletemassfilterflag $1;
+                                echo -e "\n>>>remafi $1 1";
+                                /app/sword/schenker/toolslocal/support/remafi $1 1;
+                        else
+                                echo -e "\n>>>remafi $1 7";
+                                /app/sword/schenker/toolslocal/support/remafi $1 7;
+                                echo -e "\n>>>deletemassfilterflag $1";
+                                echo | /app/sword/schenker/toolslocal/support/deletemassfilterflag $1;
+                        fi
                 fi
-            done
-        else
-            err;
-            echo -n "MassFilterFileNumber of $1:";
-            ls -l /app/sword/schenker/data/error | grep "MassFilter" | grep $1 | grep -c ".att$";
-            ls -l /app/sword/schenker/data/error | grep "MassFilter" | grep $1 | head;
-            INTEGRATIONTYPE=$(SQLselect INTEGRATIONTYPE XIB_PROCESSIDPROPERTIES PROCESSIDCODE $1 | sed 's#^.* ##');
-            echo "Integration type : ${INTEGRATIONTYPE}";
-            if [[ "${INTEGRATIONTYPE}" == "Parallel" ]];then
-                echo -e "\n>>>deletemassfilterflag $1";
-                echo | /app/sword/schenker/toolslocal/support/deletemassfilterflag $1;
-                echo -e "\n>>>remafi $1 2";
-                /app/sword/schenker/toolslocal/support/remafi $1 2;
-            elif [[ "${INTEGRATIONTYPE}" == "SerialLarge" ]]; then
-                echo -e "\n>>>remafi $1 7";
-                /app/sword/schenker/toolslocal/support/remafi $1 7;
-                echo -e "\n>>>deletemassfilterflag $1";
-                echo | /app/sword/schenker/toolslocal/support/deletemassfilterflag $1;
-            fi
         fi
-    fi
-}
-
-function corelog()
-{
-	grep $1 /app/sword/axway/Interchange/logs/*log
+        alias 1='ls -lt';
 }
 
 echo "Available functions : ref; hk; monitor; runmass; cer";
-echo "Usage for monitor: monitor {time}, such as monitor 300";
+echo "Usage for monitor: monitor {time}, such as monitor 5";

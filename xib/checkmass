@@ -1,0 +1,39 @@
+####################################################
+#
+#Attention for wc -C
+#created on 06.13.2019 to check the frequency of massfilters
+####################################################
+
+#!/bin/bash
+
+function checkinput()
+{
+	STR_TMP=$(echo "$1" | sed 's/[0-9a-zA-Z]//g' | sed 's/\_//g');
+	LENGTH=$(echo "$1"|wc -C);
+	
+	if [ "$1" == "" ];
+		then echo -e "Need to input the PID!"
+		elif [ $STR_TMP ] || [ $LENGTH != 11 ];
+		then echo -e "Input incorrectly (unavailable var or length)!";
+		else return 1;
+	fi
+}
+
+
+function CheckMass()
+{
+	HISTORY=/ext/schenker/support/statlog/MassFilter/history;
+	#STATLOG=/ext/schenker/support/statlog/MassFilter/log;
+	checkinput $@;
+	cd $HISTORY;
+	#ls -lt | head -3;
+	#ls -l $HISTORY/$1*|awk '{print $6}' 
+	echo -en "How many times this happened during last 30 days:"
+	find . -type f -mtime -30 -name "$1*" | wc -l;
+	echo -e "Detailed files:";
+	find . -type f -mtime -30 -name "$1*"  | head
+
+
+}
+
+CheckMass $@;

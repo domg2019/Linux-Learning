@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ##########################################################################################################
-#Program:	This script aims to run the Massfilter files (less than 2000) automatilly to improve the work efficiance 
+#Program:	This script aims to run the Massfilter files (less than 2000) automatilly to improve the work efficiance
 #Author:	Luis Liu   luis.liu@dbschenker.com
 #History:
 #
@@ -120,3 +120,5 @@ do
 	fi
 
 done;
+
+

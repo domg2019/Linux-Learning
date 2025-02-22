@@ -13,7 +13,6 @@
 #check the frequency. Default value is 30 days.
 [[ $2 == '' ]] && Days=30 || Days=$2
 
-
 #Check the MassFilter frequency for the PID
 Days_CHECK=`find /app/sword/schenker/support/statlog/MassFilter/history -mtime -"$Days" -name "$1*" | wc -l`
 Times_Check=$(for logfile in `find /app/sword/schenker/support/statlog/MassFilter/log  -mtime -"$Days" -name "b2biprd*"`;do grep $1 $logfile;done | wc -l)

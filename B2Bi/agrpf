@@ -6,6 +6,8 @@
 #               write this one to intergare these two scripts.
 #
 #History:
+#               2024.16.10      Luis    Bug fixed. Use tac to open log files and then grep.
+#               2024.24.06      Luis    Optimize ftp & inbound function script
 #               2022.09.01      Luis    Add function for checking ftp pending messages
 #               2022.07.04      Luis    Update the function for outbound pending messages. Now outbound pending messages
 #                                       will be handled per protocols: sftp,ftp(s)
@@ -19,7 +21,7 @@ echo -e User: `who am i|cut -c 1-8` Input Value:$* '\t' Current Time: `date`  >>
 
 #only specific user can use this function
 user=`who am i|cut -c 1-8`
-[[ "$user" != "luisliu1" && "$user" != "rainzeng" ]] && echo -e "Permission forbidden.Kindly contact luis.liu@schenker.com or lars.herrlein@dbschenker.c
+[[ "$user" != "luisliu1" && "$user" != "rainzeng" && "$user" != "elsonxu1" ]] && echo -e "Permission forbidden.Kindly contact luis.liu@schenker.com or lars.herrlein@dbschenker.c
 om for access. " && exit
 
 [[ $1 == "" ]] && echo -e "Kindly input the whole filename!" && exit
@@ -34,7 +36,7 @@ function Inbound_pendingfile_handling ()
 {
 
 #only specific user can use this function
-if [[ "$user" != "luisliu1" &&  "$user" != "tomyli01" ]];then echo -e "Permission forbidden.Kindly contact luis.liu@schenker.com or lars.herrlein@dbschenker.com for access. ";exit;fi
+if [[ "$user" != "luisliu1" ]];then echo -e "Permission forbidden.Kindly contact luis.liu@schenker.com or lars.herrlein@dbschenker.com for access. ";exit;fi
 
 
 #advise to input the correct filename
@@ -58,12 +60,18 @@ echo -e ">>>there is one inbound file received:"
 ls -l ${COM}/COMS*/agr/*inbound/exp/$1
 
 
+
 #check log to judge if the file is already successfully transferred earlier
-#grep --color=auto $real_filename ${com_direcroty}/log/log | grep --color=auto 'Successfully created input file' &>/dev/null
-grep --color=auto $real_filename ${com_direcroty}/log/log | grep --color=auto 'ExportFileTask' &>/dev/null
-if [ $? -eq 0 ]
-        then echo;echo -e ">>>the file is already transferred successfully earlier as below:"
-                 grep --color=auto $real_filename ${com_direcroty}/log/log|grep --color=auto -B 10 'ExportFileTask'
+#grep --color=always $real_filename ${com_direcroty}/log/log | grep --color=always 'ExportFileTask' &>/dev/null
+#if [ $? -eq 0 ]
+
+# update below command to judge if there is NONE zero byte file in archive/scheduler folder
+archive_file_number=`find ${com_direcroty}/archive/scheduler/${agreement}/*/*/*/ -type f -name "*${real_filename}" -size +0c|wc -l|bc`
+#use new logic: check the archive folder.
+if [ ${archive_file_number} -gt 0 ]
+        then echo;echo -e ">>>the file is already transferred successfully earlier as below"
+#                 grep --color=always $real_filename ${com_direcroty}/log/log|grep --color=always -B 10 'ExportFileTask'
+                 find ${com_direcroty}/archive/scheduler/${agreement}/*/*/*/ -type f -name "*${real_filename}"  -print0 | xargs -0 ls -l |head
                  echo;echo -e ">>>housekeeping in the shell:"
                  ls -d ${sup_comsys}/${agreement} &>/dev/null
                  if [ $? -eq 0 ]; then  /usr/bin/mv -v $exp_directory/$1 ${sup_comsys}/${agreement}
@@ -74,13 +82,13 @@ if [ $? -eq 0 ]
         else            echo;echo -e ">>>check the archive folder and the transfer log but there is no record."
                                 echo;echo -e ">>>the file is not transferred successfully due to: "
                                 latest_protlog=`ls -t ${com_direcroty}/agr/${agreement}/prot|head -1`
-                                grep --color=auto -C3 ':ERROR:' ${com_direcroty}/agr/${agreement}/prot/${latest_protlog}
+                                grep --color=always -C3 ':ERROR:' ${com_direcroty}/agr/${agreement}/prot/${latest_protlog}
                                echo;echo -e ">>>Move to next step:"
                                /usr/bin/mv -v $exp_directory/$1 $com_direcroty/comexp_ok/
                                 echo;echo -e ">>>Sleep 15 seconds to check the log information..."
                                 sleep 15
                                 logcount_filename=`echo $count_filename|cut -d. -f2-`
-                                grep --color=auto $logcount_filename ${com_direcroty}/log/log | tail -10
+                                grep --color=always $logcount_filename ${com_direcroty}/log/log | tail -10
 fi
 
 }
@@ -117,46 +125,47 @@ echo -e "***********************************************************************
 
 #check the agreement parameters:
 echo;echo -e ">>>the parameters as below:"
-#grep --color=auto -E 'Protocol|RemoteHost|User|RemoteDir|Description' ${agr_directory}/*xml
-grep --color=auto -v 'Password' ${agr_directory}/*xml
+#grep --color=always -E 'Protocol|RemoteHost|User|RemoteDir|Description' ${agr_directory}/*xml
+grep --color=always -v 'Password' ${agr_directory}/*xml
 
 #check the error log. handle different situations per the ERRORs
 echo;echo -e ">>>check the log and find the issue below:"
-Protocol_type=`grep --color=auto Protocol ${agr_directory}/*xml|cut -d">" -f2|cut -d"<" -f1`
+Protocol_type=`grep --color=always Protocol ${agr_directory}/*xml|cut -d">" -f2|cut -d"<" -f1`
 
 if [ ${Protocol_type} == "script" ];then
 latest_protlog=`ls -t ${agr_directory}/prot/*log 2> /dev/null  |head -1|sed 's/.*\(sftp.*\)/\1/'`
-error_count=`grep --color=auto -i error ${agr_directory}/prot/${latest_protlog} 2> /dev/null |wc -l|bc`
+error_count=`grep --color=always -i error ${agr_directory}/prot/${latest_protlog} 2> /dev/null |wc -l|bc`
 case $error_count in
                         0)
-                        grep --color=auto -iC5 existing  ${agr_directory}/prot/${latest_protlog} | sed -n 1,10p
+#                        grep --color=always -iC5 existing  ${agr_directory}/prot/${latest_protlog} | sed -n 1,10p
+                        tac ${agr_directory}/prot/${latest_protlog} | grep --color=always -iC5 existing | sed -n 1,10p
                         [[ "$?" -eq 1 ]] && echo -e "No error information found in latest prot log. Will check it manually"
                         ;;
                         1)
-                        grep --color=auto -iC 5 error  ${agr_directory}/prot/${latest_protlog}
+                        grep --color=always -iC 5 error  ${agr_directory}/prot/${latest_protlog}
                         ;;
                         2)
-                        grep --color=auto  -iC 2 error  ${agr_directory}/prot/${latest_protlog}
+                        grep --color=always  -iC 2 error  ${agr_directory}/prot/${latest_protlog}
                         ;;
                         *)
-                        grep --color=auto -iC 5 error  ${agr_directory}/prot/${latest_protlog} | sed -n 1,10p
+                        grep --color=always -iC 5 error  ${agr_directory}/prot/${latest_protlog} | sed -n 1,10p
                         ;;
 esac
 
 else latest_protlog=`ls -t ${agr_directory}/prot/ftp* 2> /dev/null  |head -1|sed 's/.*\(ftp..*\)/\1/'`
-error_count=`grep --color=auto 'ERROR:' ${agr_directory}/prot/${latest_protlog} 2> /dev/null |wc -l|bc`
+error_count=`grep --color=always 'ERROR:' ${agr_directory}/prot/${latest_protlog} 2> /dev/null |wc -l|bc`
 case $error_count in
                         0)
                         echo -e "No error information found in latest prot log. Will check it manually"
                         ;;
                         1)
-                        grep --color=auto -C 5 'ERROR:' ${agr_directory}/prot/${latest_protlog}
+                        grep --color=always -C 5 'ERROR:' ${agr_directory}/prot/${latest_protlog}
                         ;;
                         2)
-                        grep --color=auto  -C 2 'ERROR:' ${agr_directory}/prot/${latest_protlog}
+                        grep --color=always  -C 2 'ERROR:' ${agr_directory}/prot/${latest_protlog}
                         ;;
                         *)
-                        grep --color=auto -C 5 'ERROR:' ${agr_directory}/prot/${latest_protlog} | sed -n 1,10p
+                        grep --color=always -C 5 'ERROR:' ${agr_directory}/prot/${latest_protlog} | sed -n 1,10p
                         ;;
 esac
 fi
@@ -169,16 +178,15 @@ function Ftp_download_pendingfile_handling ()
 {
     if [[ ${file_dir} != "" ]];
     then search_dir=`dirname "${file_dir}" | cut -d"/" -f7-`;
-    all_xml_files=`grep --color=auto -l ${search_dir} /app/sword/schenker/comsys/COMS*/agr/*inbound/*inbound_dump.xml`
+    all_xml_files=`grep --color=always -l ${search_dir} /app/sword/schenker/comsys/COMS*/agr/*inbound/*inbound_dump.xml`
         if [[ ${all_xml_files} != "" ]];
         then for xml_file in ${all_xml_files};
-                 do grep --color=auto -Hi filemask ${xml_file};
+                 do grep --color=always -Hi filemask ${xml_file};
              done
          else echo -e "Kindly input correct references! For ftp, kindly check other ways."
         fi
     else echo -e "Kindly input correct references! For ftp, kindly check other ways."
     fi
-
 }
 
 if [ "$BOUND" == "inbound" ];then Inbound_pendingfile_handling $1;
