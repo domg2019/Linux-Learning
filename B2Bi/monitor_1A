@@ -1,0 +1,108 @@
+#!/bin/bash
+
+#####################################################################################################################
+# Optimized monitor Script for updating which node it belongs according to oldest failure file
+# Name:     Luis Liu
+#
+# History:
+# 03.06.2025      Created for 1A, old streams
+#####################################################################################################################
+
+errorFolder="/app/sword/schenker/data/error";
+
+##another backup function to check if there is single file pending.
+total_file_count=`ls $errorFolder|wc -l|bc`
+modulus_number=$(( $total_file_count % 2))
+if [[ $total_file_count -gt 0 && $modulus_number -gt 0 ]]
+  then echo -e "\033[41;37mKindly note that there is single file in error folder. Manually list error folder PLZ!!!\033[0m";
+fi
+
+function Beep()
+{
+        if [[ $beep == b ]];
+                then  if [[ $(ls /app/sword/schenker/data/error | wc -l | bc) != 0 ]];
+                                        then for i in $(seq 6);
+                                                        do echo -en "\a";
+                                                        sleep 0.6;
+                                                 done;
+                          fi
+        fi
+}
+
+function checkError()
+{
+    fileCount=$(ls "${errorFolder}" | grep -c "\.att$" | bc);
+    echo -n "Massfilter : ";
+    ls "${errorFolder}" | fgrep "MassFilter" | grep -c "\.att$";
+    ls "${errorFolder}" | fgrep "MassFilter" | grep "\.att$" | cut -d\. -f2 | sort | uniq -c | while read line
+    do
+        echo -en "    ${line}\t\t";
+        massfilter_pid=`echo "${line}"|cut -d" " -f2`
+    done
+    echo -n "Error : ";
+    ls "${errorFolder}" | fgrep -v "MassFilter" | fgrep -v "SYSTXERROR" | grep -c "\.att$";
+    ls "${errorFolder}" | fgrep -v "MassFilter" | fgrep -v "SYSTXERROR" | grep "\.att$" | cut -d\. -f1 | sort | uniq -c | while read line
+    do
+        echo -en "    ${line}\t\t";
+        processID=$(echo "${line}" | awk '{print $2}')
+        ls -l | fgrep "${processID}." | while read subLine
+        do
+            echo "        ${subLine}";
+        done
+        echo
+    done
+    SYSTXERROR_count=`ls ${errorFolder}/SYSTXERROR*att 2>/dev/null | wc -l|bc`
+    if [[ ${SYSTXERROR_count} -gt 0 ]]; then echo -en "SYSTXERROR Error : ";
+    ls "${errorFolder}" | fgrep "SYSTXERROR" | grep -c "\.att$";
+    for i in `ls ${errorFolder}/SYSTXERROR*att 2>/dev/null`;do grep -A 1 "^TransactionAttribute" $i | sed -n 2p |awk -F"\"ERROR\"" '{print $2}'|cut -d, -f12| cut -d"\"" -f2;done |sort | uniq -c | while read line
+    do
+        echo -en "    ${line}\t\t";
+        key_refs=$(echo "${line}" | awk '{print $2}')
+        echo
+     done
+     fi
+}
+
+function monitor()
+{
+    gap=$(echo $1 | bc);
+        beep=$(echo $2);
+    command='';
+    if [[ "${gap}" == "" ]]; then
+        checkError;
+    elif [[ "${gap}" -gt 60 || "${gap}"  -lt 5 ]]
+        then echo -e "Please input the monitor time value between 5-60 (min)"
+    else
+       for((count=1;count<=$((480/${gap}));count++))
+        do
+            if [[ "${command}" != "" ]]; then
+                ${command};
+                command='';
+                echo -e "\nCommand ${command} has been executed, please press Enter to continue.";
+                read dummy;
+            else
+                clear;
+                date;
+                checkError | tee /tmp/check_error_result.tmp
+                if [[ $3 == "" ]];
+                then Beep;
+                else
+                  [[ $((`echo $3|wc -c`%2)) == 0 ]] && echo -e "\033[41;37mPlease input node name correctlly. Correct eg: 3a3b or 3a2b\033[0m" && exit
+                  loop_count=0
+                  for node in `cat /tmp/check_error_result.tmp|grep '^ '|awk '{print $3}'|sort|uniq`;
+                  do  loop_count=$((`echo "$3" | grep -i $node|wc -l`+$loop_count))
+                  done
+                  if [[ $loop_count -gt 0 ]];
+                    then Beep;
+                  fi
+                fi
+                echo -e "Next check will be executed ${gap} minutes later.\nPress Enter to check again immediately.\nInput any command to run immediately.";
+                read -t "$((${gap}*60))" command;
+                sleep 1;
+            fi
+        done
+    fi
+}
+
+
+monitor "$@";

@@ -47,23 +47,23 @@ function hk()
                 grep -wl "$2" $(ls ${errorFolder}/SYSTXERROR*att) |cut -d"/" -f7 | sed 's/.att$//g' > ${hkTmpFile};
          else ls | grep -v "MassFilter" | grep "${processID}.*.att" | sed 's/.att$//g' > ${hkTmpFile};
          fi
-            echo -n ">>>The number of ${processID} error file(s) is: ";
-            wc -l ${hkTmpFile} | awk '{print $1}';
-            for file in $(cat ${hkTmpFile})
-            do
-                ls -l ${file}*;
-            done
-            echo -e "\n>>>File info:";
-            for file in $(cat ${hkTmpFile})
-            do
-                ref ${file};
-            done
-            echo ">>>Moving file to housekeeping folder:";
+        echo -n ">>>The number of ${processID} error file(s) is: ";
+        wc -l ${hkTmpFile} | awk '{print $1}';
+        for file in $(cat ${hkTmpFile})
+        do
+            ls -l ${file}*;
+        done
+        echo -e "\n>>>File info:";
+        for file in $(cat ${hkTmpFile})
+        do
+            ref ${file};
+        done
+        echo ">>>Moving file to housekeeping folder:";
 #            for file in $(cat ${hkTmpFile})
 #            do
 #                /bin/mv -v ${file}* ${houseKeepPath};
 #            done
-            /usr/bin/rm ${hkTmpFile};
+        /usr/bin/rm ${hkTmpFile};
     else
         echo "Please input a valid processID as parameter.";
     fi
