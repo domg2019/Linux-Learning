@@ -36,7 +36,7 @@ function hk()
                 processID=$1;
                 cd ${errorFolder};
                 /app/sword/schenker/toolslocal/support/clean_up -v;
-                echo "clean_up command completed, proceeding..."
+                echo -e "\e[42mclean_up command completed, proceeding...\e[0m"
                 hkTmpFile="/tmp/hk_${processID}_$(date "+%Y%m%d%H%M%S").tmp";
                 find /tmp/ -mtime +1 -name "hk_*.tmp" -exec /bin/rm {} \; 2>/dev/null;
                 if [[ $(ls /tmp/hk_${processID}_*.tmp 2>/dev/null | wc -l | bc) != 0 ]];then
@@ -48,9 +48,9 @@ function hk()
                         exit;
                 fi
                 if [[ "$1" == "SYSTXERROR" ]]; then
-                        [[ "$2" == "" ]] && echo "Please input the SYSTXERROR ref. Usage: multi_hk.sh + SYSTXERROR + {SYSTXERROR refs}" &&  exit
+                        [[ "$2" == "" ]] && echo "Please input the SYSTXERROR ref. Usage: hk + SYSTXERROR + {SYSTXERROR ref}" &&  exit
                         systxerror_files=$(ls ${errorFolder}/SYSTXERROR*att 2>/dev/null)
-                        [[ -z "$systxerror_files" ]] && echo "There are no SYSTXERRORs for the reference any more! Files might be clean_up already!" &&  exit
+                        [[ -z "$systxerror_files" ]] && echo "There are no SYSTXERRORs for the reference anymore! Files might be clean_up already!" &&  exit
                         [[ -n "$systxerror_files" ]] && grep -wl "$2" $(ls ${errorFolder}/SYSTXERROR*att 2>/dev/null) |cut -d"/" -f7  | sed 's/.att$//g' > ${hkTmpFile};
                 else ls | grep -v "MassFilter" | grep "${processID}.*.att" | sed 's/.att$//g' > ${hkTmpFile};
                 fi
